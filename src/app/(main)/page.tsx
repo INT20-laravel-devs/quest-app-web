@@ -1,17 +1,9 @@
 'use client';
 
-import HeroSection from '@/features/hero/hero';
+import MainPage from '@/features/main/main';
 
 const Main = () => {
-  return (
-    <HeroSection
-      title="Create New Quest"
-      userRole="Player"
-      subtitle="Start your adventure by creating a new quest"
-      buttonText="Start Quest"
-      onButtonClick={() => console.log('TEST')}
-    />
-  );
+  return <MainPage />;
 };
 
 export default Main;
