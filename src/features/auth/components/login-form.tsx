@@ -7,21 +7,33 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Routes } from '@/constants/routes';
 import { LoginFormInputs, loginSchema } from '@/features/auth/auth-types';
+import { signIn } from '@/api/auth';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const LoginForm = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'form'>) => {
+  const { replace } = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormInputs) => {
-    console.log(data);
+  const onSubmit = async (data: LoginFormInputs) => {
+    try {
+      await signIn(data);
+      replace(Routes.PROFILE);
+      toast.success('Logged in successfully!');
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.error(e.message);
+      }
+    }
   };
 
   return (
@@ -38,12 +50,12 @@ const LoginForm = ({
       </div>
       <div className="grid gap-6">
         <Input
-          id="nickname"
+          id="emailOrNickname"
           label="Nickname / Email"
           type="text"
           placeholder="m@example.com"
-          error={errors.nickname?.message}
-          {...register('nickname')}
+          error={errors.emailOrNickname?.message}
+          {...register('emailOrNickname')}
         />
         <Input
           id="password"
@@ -52,7 +64,7 @@ const LoginForm = ({
           error={errors.password?.message}
           {...register('password')}
         />
-        <Button type="submit" className="w-full">
+        <Button isLoading={isSubmitting} type="submit" className="w-full">
           Login
         </Button>
       </div>

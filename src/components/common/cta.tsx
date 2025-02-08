@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 
 interface CtaProps {
@@ -53,12 +51,12 @@ const Cta = ({
             </p>
             <div className="flex w-full flex-col justify-center gap-2 sm:flex-row">
               {buttons.secondary && (
-                <Button variant="outline" className="w-full sm:w-auto" asChild>
+                <Button variant="outline" className="w-full sm:w-auto">
                   <a href={buttons.secondary.url}>{buttons.secondary.text}</a>
                 </Button>
               )}
               {buttons.primary && (
-                <Button className="w-full sm:w-auto" asChild>
+                <Button className="w-full sm:w-auto">
                   <a href={buttons.primary.url}>{buttons.primary.text}</a>
                 </Button>
               )}

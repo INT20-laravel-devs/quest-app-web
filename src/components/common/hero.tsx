@@ -1,5 +1,3 @@
-'use client';
-
 import { Gamepad, Map, Star } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';

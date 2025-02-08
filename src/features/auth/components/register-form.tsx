@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Routes } from '@/constants/routes';
 import { RegisterFormInputs, registerSchema } from '@/features/auth/auth-types';
+import { signUp } from '@/api/auth';
+import { toast } from 'sonner';
 
 const RegisterForm = ({
   className,
@@ -15,13 +17,20 @@ const RegisterForm = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: RegisterFormInputs) => {
-    console.log(data);
+  const onSubmit = async (data: RegisterFormInputs) => {
+    try {
+      await signUp(data);
+      toast.success('Account created successfully! Please check your email');
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.error(e.message);
+      }
+    }
   };
 
   return (
@@ -60,8 +69,8 @@ const RegisterForm = ({
           error={errors.password?.message}
           {...register('password')}
         />
-        <Button type="submit" className="w-full">
-          Login
+        <Button isLoading={isSubmitting} type="submit" className="w-full">
+          Register
         </Button>
       </div>
       <div className="text-center text-sm">
