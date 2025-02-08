@@ -4,3 +4,8 @@ export enum Routes {
   SIGN_UP = '/auth/sign-up',
   PROFILE = '/profile',
 }
+
+export const HeaderRoutes = [
+  { name: 'Home', route: Routes.HOME },
+  { name: 'Profile', route: Routes.PROFILE },
+];
