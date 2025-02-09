@@ -33,11 +33,11 @@ const UserInfo = ({ isLoggedIn }: UserInfoProps) => {
       <div className={cn('flex items-center gap-3')}>
         <Link
           className={buttonVariants({ variant: 'secondary' })}
-          href={Routes.SIGN_UP}
+          href={Routes.SIGN_IN}
         >
           Login
         </Link>
-        <Link className={buttonVariants()} href={Routes.SIGN_IN}>
+        <Link className={buttonVariants()} href={Routes.SIGN_UP}>
           Register
         </Link>
       </div>

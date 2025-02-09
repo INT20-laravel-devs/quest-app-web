@@ -1,4 +1,3 @@
-import { env } from '@/config/env';
 
 import {
   EmailResendRequest,
@@ -6,8 +5,7 @@ import {
   SignUpRequest,
   User,
 } from '@/types/auth';
-
-const API_URL = env.NEXT_PUBLIC_API_URL;
+import { API_URL } from './constant';
 
 export const signIn = async (data: SignInRequest) => {
   try {

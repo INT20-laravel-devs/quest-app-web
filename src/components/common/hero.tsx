@@ -3,6 +3,8 @@ import { Gamepad, Map, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import GradientHeading from './gradient-heading';
+import { Avatar } from '@/components/ui/avatar';
+import { AvatarImage } from '@radix-ui/react-avatar';
 
 interface Feature {
   icon?: React.ReactNode;
@@ -11,6 +13,7 @@ interface Feature {
 }
 
 interface HeroProps {
+  avatar?: string
   badge?: string;
   heading?: string;
   imageSrc?: string;
@@ -19,6 +22,7 @@ interface HeroProps {
 }
 
 const Hero = ({
+  avatar = '',
   badge = 'Start your adventure by creating a new quest',
   heading = 'Create a new quest!',
   imageSrc = 'https://images.unsplash.com/photo-1572021335469-31706a17aaef?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -49,7 +53,16 @@ const Hero = ({
       <div className="container overflow-hidden">
         <div className="mb-20 flex flex-col items-center gap-6 text-center">
           <Badge variant="outline">{badge}</Badge>
-          <GradientHeading level="h1" heading={heading} />
+          {avatar == '' ? (
+            <GradientHeading level="h1" heading={heading} />
+          ) : (
+            <div className="flex justify-center gap-4 items-center">
+              <Avatar>
+                <AvatarImage src={avatar} alt="avatar" />
+              </Avatar>
+              <GradientHeading level="h1" heading={heading} />
+            </div>
+          )}
         </div>
         <div className="relative mx-auto max-w-screen-lg">
           <img

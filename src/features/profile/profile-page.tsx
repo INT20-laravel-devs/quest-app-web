@@ -9,8 +9,9 @@ const ProfilePage: FC = () => {
   return (
     <>
       <Hero
-        badge="Configure Settings"
-        heading="Account Details"
+        avatar="https://github.com/shadcn.png"
+        badge="Account Details"
+        heading="Hello!"
         features={[]}
         imageSrc="https://images.unsplash.com/photo-1516387938699-a93567ec168e?q=80&w=3871&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         imageAlt="Laptop and hands"
