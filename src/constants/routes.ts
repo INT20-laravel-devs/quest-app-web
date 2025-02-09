@@ -5,7 +5,8 @@ export enum Routes {
   PROFILE = '/profile',
 }
 
-export const HeaderRoutes = [
-  { name: 'Home', route: Routes.HOME },
-  { name: 'Profile', route: Routes.PROFILE },
-];
+export const HeaderRoutes = [{ name: 'Home', route: Routes.HOME }];
+
+export const publicRoutes = [Routes.HOME];
+export const protectedRoutes = [Routes.PROFILE];
+export const authRoutes = [Routes.SIGN_IN, Routes.SIGN_UP];

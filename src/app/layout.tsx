@@ -4,6 +4,7 @@ import '../theme/globals.css';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import Providers from '@/providers';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
       >
+        <Toaster richColors />
         <Providers>{children}</Providers>
       </body>
     </html>

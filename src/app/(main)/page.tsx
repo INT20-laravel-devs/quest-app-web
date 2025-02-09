@@ -1,6 +1,4 @@
-'use client';
-
-import MainPage from '@/features/main/main';
+import MainPage from '@/features/main/main-page';
 
 const Main = () => {
   return <MainPage />;
