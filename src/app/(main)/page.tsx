@@ -1,6 +1,7 @@
 import MainPage from '@/features/main/main-page';
+import { FC } from 'react';
 
-const Main = () => {
+const Main: FC = () => {
   return <MainPage />;
 };
 
