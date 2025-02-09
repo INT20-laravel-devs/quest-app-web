@@ -1,10 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import React from "react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import React from 'react';
 import { Routes } from '@/constants/routes';
-import { FC } from "react";
+import { FC } from 'react';
 import { useRouter } from 'next/navigation';
+
 interface PostFormProps {
   onNext?: () => void;
   onCancel?: () => void;
@@ -18,6 +19,7 @@ const PostForm: FC<PostFormProps> = ({
   const [formData, setFormData] = React.useState({
     title: '',
     description: '',
+    timeLimit: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -67,6 +69,27 @@ const PostForm: FC<PostFormProps> = ({
                 }))
               }
               className="min-h-[150px] w-full"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="timeLimit"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Time Limit (minutes)
+            </label>
+            <Input
+              id="timeLimit"
+              type="number"
+              placeholder="Enter time limit in minutes"
+              value={formData.timeLimit}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, timeLimit: e.target.value }))
+              }
+              min="1"
+              className="w-full"
               required
             />
           </div>

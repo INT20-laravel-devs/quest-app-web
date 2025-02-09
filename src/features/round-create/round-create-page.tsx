@@ -2,22 +2,33 @@
 
 import React, { FC, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 
 import RoundType from './components/round-type';
 import TaskContent from './components/task-content';
-import TimeLimit from './components/time-limit';
-import PointsContent from './components/points-content';
 import { useRouter } from 'next/navigation';
 import { Routes } from '@/constants/routes';
+import Stepper from '@/components/common/stepper';
+import TaskSelected from './components/tast-selected';
+
+
+export enum RoundPlayType {
+  Open = 'open',
+  Test = 'test',
+  Geolocation = 'geolocation',
+  Single = 'single',
+  Image = 'image',
+  NULL = "",
+}
 
 export interface RoundData {
-  roundType: string;
+  roundType: RoundPlayType;
   task: {
-    text: string;
+    mediaContent: string;
     mediaType: string;
-    mediaUrl: string;
   };
   timeLimit: string;
   points: string;
@@ -30,11 +41,10 @@ export interface RoundTypeProps {
 
 const RoundCreatePage: FC = () => {
   const [formData, setFormData] = useState<RoundData>({
-    roundType: '',
+    roundType: RoundPlayType.NULL,
     task: {
-      text: '',
+      mediaContent: '',
       mediaType: '',
-      mediaUrl: '',
     },
     timeLimit: '',
     points: '',
@@ -60,23 +70,24 @@ const RoundCreatePage: FC = () => {
       case 1:
         return <RoundType formData={formData} setFormData={setFormData} />;
       case 2:
-        return <TaskContent formData={formData} setFormData={setFormData} />;
+        return (
+          <TaskSelected
+            roundType={formData.roundType}
+            formData={formData}
+            setFormData={setFormData}
+          />
+        );
       case 3:
-        return <TimeLimit formData={formData} setFormData={setFormData} />;
+        return <TaskContent formData={formData} setFormData={setFormData} />;
       case 4:
-        return <PointsContent formData={formData} setFormData={setFormData} />;
+        return <div>Hello</div>;
     }
   };
 
   return (
     <div className="min-h-screen py-16 container">
-      <div className="mb-12 flex flex-col items-center gap-6 text-center">
-        <Badge variant="outline" className="animate-fade-in">
-          Step {step} of 4
-        </Badge>
-        <h1 className="text-4xl font-semibold lg:text-5xl bg-gradient-to-r from-[#7c3aed] via-purple-400 to-[#7c3aed] bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
-          Create New Round
-        </h1>
+      <div className="max-w-xl m-auto py-6">
+        <Stepper currentStep={2} />
       </div>
 
       <div className="max-w-3xl mx-auto">
@@ -91,7 +102,7 @@ const RoundCreatePage: FC = () => {
               onClick={handleNext}
               disabled={
                 (step === 1 && !formData.roundType) ||
-                (step === 2 && !formData.task.text) ||
+                (step === 2 && !formData.task.mediaContent) ||
                 (step === 3 && !formData.timeLimit) ||
                 (step === 4 && !formData.points)
               }

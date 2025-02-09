@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { FileText, ListChecks } from "lucide-react";
+import { Dog, EarthIcon, FileText, List, ListChecks } from "lucide-react";
 import { FC } from "react";
-import { RoundTypeProps } from "../round-create-page";
+import { RoundPlayType, RoundTypeProps } from "../round-create-page";
 
 
 const RoundType: FC<RoundTypeProps> = ({ formData, setFormData }) => {
@@ -17,9 +17,13 @@ const RoundType: FC<RoundTypeProps> = ({ formData, setFormData }) => {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button
-            variant={formData.roundType === 'open' ? 'default' : 'outline'}
+            variant={
+              formData.roundType === RoundPlayType.Open ? 'default' : 'outline'
+            }
             className="h-auto p-6 flex flex-col items-center gap-4"
-            onClick={() => setFormData({ ...formData, roundType: 'open' })}
+            onClick={() =>
+              setFormData({ ...formData, roundType: RoundPlayType.Open })
+            }
           >
             <FileText className="h-8 w-8" />
             <div className="text-center">
@@ -30,15 +34,74 @@ const RoundType: FC<RoundTypeProps> = ({ formData, setFormData }) => {
             </div>
           </Button>
           <Button
-            variant={formData.roundType === 'test' ? 'default' : 'outline'}
+            variant={
+              formData.roundType === RoundPlayType.Test ? 'default' : 'outline'
+            }
             className="h-auto p-6 flex flex-col items-center gap-4"
-            onClick={() => setFormData({ ...formData, roundType: 'test' })}
+            onClick={() =>
+              setFormData({ ...formData, roundType: RoundPlayType.Test })
+            }
           >
             <ListChecks className="h-8 w-8" />
             <div className="text-center">
               <h3 className="font-semibold">Test Questions</h3>
               <p className="text-sm text-muted-foreground">
                 Multiple choice questions
+              </p>
+            </div>
+          </Button>
+          <Button
+            variant={
+              formData.roundType === RoundPlayType.Geolocation
+                ? 'default'
+                : 'outline'
+            }
+            className="h-auto p-6 flex flex-col items-center gap-4"
+            onClick={() =>
+              setFormData({ ...formData, roundType: RoundPlayType.Geolocation })
+            }
+          >
+            <EarthIcon className="h-8 w-8" />
+            <div className="text-center">
+              <h3 className="font-semibold">Geolocation</h3>
+              <p className="text-sm text-muted-foreground">
+                Select object on image
+              </p>
+            </div>
+          </Button>
+          <Button
+            variant={
+              formData.roundType === RoundPlayType.Single
+                ? 'default'
+                : 'outline'
+            }
+            className="h-auto p-6 flex flex-col items-center gap-4"
+            onClick={() =>
+              setFormData({ ...formData, roundType: RoundPlayType.Single })
+            }
+          >
+            <List className="h-8 w-8" />
+            <div className="text-center">
+              <h3 className="font-semibold">Single Answer</h3>
+              <p className="text-sm text-muted-foreground">
+                Select one right answer
+              </p>
+            </div>
+          </Button>
+          <Button
+            variant={
+              formData.roundType === RoundPlayType.Image ? 'default' : 'outline'
+            }
+            className="h-auto p-6 flex flex-col items-center gap-4"
+            onClick={() =>
+              setFormData({ ...formData, roundType: RoundPlayType.Image })
+            }
+          >
+            <Dog className="h-8 w-8" />
+            <div className="text-center">
+              <h3 className="font-semibold">Image</h3>
+              <p className="text-sm text-muted-foreground">
+                Select object on the image
               </p>
             </div>
           </Button>
