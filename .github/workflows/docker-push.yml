@@ -28,4 +28,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: stbasarab/questly:latest
+          tags: stbasarab/questly-web:latest
