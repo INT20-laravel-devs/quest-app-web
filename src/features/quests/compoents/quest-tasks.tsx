@@ -8,67 +8,76 @@ import { Routes } from '@/constants/routes';
 import Link from 'next/link';
 import { cn } from '@/utils/styles-utils';
 import { useEffect, useState } from 'react';
-import QuestTaskModal from '@/features/quests/compoents/quest-task-modal';
+import QuestTaskModal, {
+  Task,
+} from '@/features/quests/compoents/quest-task-modal';
 
-const tasksMock = [
+const tasksMock: Task[] = [
   {
     id: 1,
-    title: 'Task 1',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
-    completed: true,
+    title: 'Ancient Riddle',
+    description:
+      'Solve this riddle to progress: What has keys, but no locks; space, but no room; you can enter, but not go in?',
+    type: 'single',
+    options: ['A Piano', 'A Keyboard', 'A Map', 'A Book'],
+    timeLimit: 120,
+    completed: false,
   },
   {
     id: 2,
-    title: 'Task 2',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
-    completed: true,
+    title: 'Forest Navigation',
+    description:
+      'Navigate through the enchanted forest. Choose your path wisely.',
+    type: 'map',
+    image: '/placeholder.svg?height=256&width=512',
+    timeLimit: 180,
+    completed: false,
   },
   {
     id: 3,
-    title: 'Task 3',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+    title: 'Magical Ingredients',
+    description:
+      'Select all the ingredients needed for the invisibility potion.',
+    type: 'multiple',
+    options: [
+      'Moonstone',
+      'Dragon scales',
+      'Unicorn hair',
+      'Troll sweat',
+      'Phoenix feather',
+    ],
+    timeLimit: 150,
     completed: false,
   },
   {
     id: 4,
-    title: 'Task 4',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+    title: 'Spell Incantation',
+    description: 'Write the correct spell incantation to open the sealed door.',
+    type: 'text',
+    timeLimit: 90,
     completed: false,
   },
   {
     id: 5,
-    title: 'Task 5',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+    title: 'Hidden Symbol',
+    description: 'Find and click on the hidden magical symbol in the image.',
+    type: 'image-point',
+    image: '/placeholder.svg?height=256&width=512',
+    timeLimit: 120,
     completed: false,
   },
   {
     id: 6,
-    title: 'Task 6',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
-    completed: false,
-  },
-  {
-    id: 7,
-    title: 'Task 7',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
-    completed: false,
-  },
-  {
-    id: 8,
-    title: 'Task 8',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
-    completed: false,
-  },
-  {
-    id: 9,
-    title: 'Task 9',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
-    completed: false,
-  },
-  {
-    id: 10,
-    title: 'Task 10',
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+    title: 'Final Challenge',
+    description: 'Choose your final path to claim the treasure.',
+    type: 'single',
+    options: [
+      'The Path of Courage',
+      'The Path of Wisdom',
+      'The Path of Loyalty',
+      'The Path of Power',
+    ],
+    timeLimit: 240,
     completed: false,
   },
 ];
@@ -85,6 +94,7 @@ const QuestTasks = ({
   durationMinutes,
 }: QuestTasksProps) => {
   const [remainingTime, setRemainingTime] = useState(durationMinutes * 60);
+  const [tasks, setTasks] = useState(tasksMock);
 
   useEffect(() => {
     const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
@@ -95,31 +105,28 @@ const QuestTasks = ({
         Math.floor((endTime.getTime() - now.getTime()) / 1000),
       );
       setRemainingTime(timeLeft);
+      if (timeLeft === 0) {
+        clearInterval(timer);
+      }
     }, 1000);
 
     return () => clearInterval(timer);
   }, [startTime, durationMinutes]);
 
-  const completedTasks = tasksMock.filter((task) => task.completed).length;
-  const totalTasks = tasksMock.length;
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const totalTasks = tasks.length;
   const progressPercentage = (completedTasks / totalTasks) * 100;
 
   const isCompletedQuest = completedTasks === totalTasks;
   const questHref = Routes.QUEST.replace('[id]', questId);
 
-  const task1 = {
-    id: 1,
-    title: 'Ancient Riddle',
-    description: 'Complete the following challenge to progress in your quest.',
-    type: 'single' as const,
-    options: ['Forest Path', 'Mountain Trail', 'River Route', 'Cave Entrance'],
-    image: '/api/placeholder/600/400',
-    timeLimit: 300, // in seconds
-  };
-
-  const handleSubmit = (answer: any) => {
-    console.log('Submitted answer:', answer);
-    // Handle the submitted answer here
+  const handleSubmit = (taskId: number, answer: any) => {
+    console.log('Submitted answer for task', taskId, ':', answer);
+    setTasks(
+      tasks.map((task) =>
+        task.id === taskId ? { ...task, completed: true } : task,
+      ),
+    );
   };
 
   return (
@@ -136,7 +143,7 @@ const QuestTasks = ({
         </div>
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground">
-            Progress: {progressPercentage}%
+            Progress: {progressPercentage.toFixed(0)}%
           </span>
           <span className="text-muted-foreground">
             {completedTasks}/{totalTasks} tasks completed
@@ -145,25 +152,27 @@ const QuestTasks = ({
         <div className="w-full bg-muted rounded-full h-2 mt-2">
           <Progress value={progressPercentage} />
         </div>
-        <div className="flex flex-wrap justify-center gap-x-20 gap-y-6 mt-6">
-          {tasksMock.map((task, index) => {
+        <div className="flex flex-wrap justify-center gap-x-20 gap-y-6 mt-10">
+          {tasks.map((task, index) => {
             const isCompleted = task.completed;
-            const isPreviousCompleted = tasksMock[index - 1]?.completed;
+            const isPreviousCompleted =
+              index === 0 || tasks[index - 1]?.completed;
             const isDisabled = !isCompleted ? !isPreviousCompleted : true;
 
             return (
               <div key={index} className="grid place-items-center gap-y-2">
-                <QuestTaskModal task={task1} onSubmit={handleSubmit}>
+                <QuestTaskModal task={task} onSubmit={handleSubmit}>
                   <Button
                     variant="ghost"
                     disabled={isDisabled}
-                    className={`flex flex-col items-center justify-center border rounded-full w-16 h-16 text-sm font-medium ${
+                    className={cn(
+                      'flex flex-col items-center justify-center border rounded-full w-16 h-16 text-sm font-medium',
                       isCompleted
                         ? 'bg-primary text-primary-foreground'
                         : isPreviousCompleted
                           ? 'border-primary text-primary cursor-pointer'
-                          : 'text-muted-foreground border-muted'
-                    }`}
+                          : 'text-muted-foreground border-muted',
+                    )}
                   >
                     {isCompleted || isPreviousCompleted ? (
                       <span className="text-lg font-bold">{index + 1}</span>
@@ -173,19 +182,21 @@ const QuestTasks = ({
                   </Button>
                 </QuestTaskModal>
                 <span className="text-center text-sm font-medium">
-                  {task.title}
+                  {!task.completed && !isPreviousCompleted
+                    ? 'Locked'
+                    : task.title}
                 </span>
               </div>
             );
           })}
         </div>
         <div className="flex justify-end mt-6">
-          {!isCompletedQuest && (
+          {isCompletedQuest && (
             <Link
               href={questHref}
               className={cn(buttonVariants({ size: 'lg' }), 'font-semibold')}
             >
-              Complete
+              Complete Quest
             </Link>
           )}
         </div>

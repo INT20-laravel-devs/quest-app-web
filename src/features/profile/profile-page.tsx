@@ -17,7 +17,7 @@ const ProfilePage: FC = () => {
         imageAlt="Laptop and hands"
       />
       <div className="container max-w-5xl ">
-        <div className=" grid gap-12 md:grid-cols-[1fr,400px] items-center">
+        <div className="px-4 grid gap-12 md:grid-cols-[1fr,400px] items-center">
           <Cta />
           <UpdateForm />
         </div>

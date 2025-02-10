@@ -1,4 +1,4 @@
-import QuestCard from '@/features/quests/compoents/quest-card';
+import QuestDashboard from '@/features/quests/compoents/quest-dashboard';
 import QuestReviews from '@/features/quests/compoents/quest-reviews';
 import QuestResults from '@/features/quests/compoents/quest-results';
 import QuestTasks from '@/features/quests/compoents/quest-tasks';

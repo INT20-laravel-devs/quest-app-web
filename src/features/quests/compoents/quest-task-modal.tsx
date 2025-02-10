@@ -15,19 +15,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MapPin, Timer } from 'lucide-react';
 
-interface Task {
+export interface Task {
   id: number;
   title: string;
   description: string;
-  type: 'single' | 'multiple' | 'text' | 'map';
+  type: 'single' | 'multiple' | 'text' | 'map' | 'image-point';
   options?: string[];
   image?: string;
   timeLimit: number;
+  completed: boolean;
 }
 
 interface QuestTaskModalProps {
   task: Task;
-  onSubmit: (answer: any) => void;
+  onSubmit: (taskId: number, answer: any) => void;
   children: React.ReactNode;
 }
 
@@ -38,7 +39,7 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [answer, setAnswer] = useState<any>(null);
-  const [mapPoint, setMapPoint] = useState<{ x: string; y: string } | null>(
+  const [imagePoint, setImagePoint] = useState<{ x: number; y: number } | null>(
     null,
   );
   const [remainingTime, setRemainingTime] = useState(task.timeLimit);
@@ -46,20 +47,18 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
 
-  // Handle different types of answers
   const handleAnswer = (value: any) => {
     setAnswer(value);
   };
 
-  // Handle map click
-  const handleMapClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = (((e.clientX - rect.left) / rect.width) * 100).toFixed(2);
-    const y = (((e.clientY - rect.top) / rect.height) * 100).toFixed(2);
-    setMapPoint({ x, y });
+    const x = Math.round(e.clientX - rect.left);
+    const y = Math.round(e.clientY - rect.top);
+    setImagePoint({ x, y });
+    setAnswer({ x, y });
   };
 
-  // Render different task types
   const renderTaskContent = () => {
     switch (task.type) {
       case 'single':
@@ -118,29 +117,38 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
         );
 
       case 'map':
+      case 'image-point':
         return (
           <div className="space-y-3">
             <div
               className="relative w-full h-64 border rounded-lg overflow-hidden cursor-crosshair"
-              onClick={handleMapClick}
+              onClick={handleImageClick}
             >
               <img
-                src={task.image || '/placeholder.svg'}
-                alt="Quest Map"
+                src={task.image || '/placeholder.svg?height=256&width=512'}
+                alt="Task Image"
                 className="w-full h-full object-cover"
               />
-              {mapPoint && (
+              {imagePoint && (
                 <div
                   className="absolute w-6 h-6 -ml-3 -mt-3 text-red-500"
-                  style={{ left: `${mapPoint.x}%`, top: `${mapPoint.y}%` }}
+                  style={{
+                    left: `${imagePoint.x}px`,
+                    top: `${imagePoint.y}px`,
+                  }}
                 >
                   <MapPin className="w-full h-full" />
                 </div>
               )}
             </div>
             <div className="text-sm text-gray-500">
-              Click on the map to mark your answer
+              Click on the image to mark your answer
             </div>
+            {imagePoint && (
+              <div className="text-sm text-gray-500">
+                Selected coordinates: ({imagePoint.x}, {imagePoint.y})
+              </div>
+            )}
           </div>
         );
 
@@ -170,15 +178,10 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Task Description */}
             <div className="text-gray-700">{task.description}</div>
-
-            {/* Task Content */}
             <div className="bg-gray-50 p-4 rounded-lg">
               {renderTaskContent()}
             </div>
-
-            {/* Hints or Additional Info */}
             <div className="text-sm text-gray-500">
               Tip: Take your time to consider all options carefully.
             </div>
@@ -190,7 +193,7 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
             </Button>
             <Button
               onClick={() => {
-                onSubmit(answer);
+                onSubmit(task.id, answer);
                 handleClose();
               }}
             >

@@ -1,53 +1,72 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { buttonVariants } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { Quest } from '@/types/quest';
+import Image from 'next/image';
 import { Star, Clock } from 'lucide-react';
-import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import React from 'react';
 import { cn } from '@/utils/styles-utils';
+import Link from 'next/link';
 import { Routes } from '@/constants/routes';
 
 interface QuestCardProps {
-  questId: string;
+  quest: Quest;
 }
 
-const QuestCard = ({ questId }: QuestCardProps) => {
-  const gameHref = Routes.QUEST_GAME.replace('[id]', questId);
-
+const QuestCard = ({ quest }: QuestCardProps) => {
+  const questHref = Routes.QUEST.replace('[id]', quest.id);
   return (
-    <Card className="flex flex-col md:flex-row w-full max-w-7xl bg-white shadow-lg rounded-2xl overflow-hidden">
-      <div className="bg-gray-200 w-full h-64 md:w-1/2 md:h-auto"></div>
-
-      <CardContent className="p-6 min-h-[350px] md:w-1/2 flex flex-col justify-between">
-        <div>
-          <div>
-            <h2 className="text-2xl font-bold">Quest</h2>
-            <p className="text-gray-600 mt-2">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil
-              aliquam explicabo numquam quaerat vero nesciunt, adipisci non,
-              amet soluta expedita illo. Praesentium illo, quidem soluta est
-              corrupti accusamus enim quo.
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between mt-4">
-            <div className="flex items-center space-x-2 text-gray-500">
-              <Clock className="w-5 h-5" />
-              <span>20m</span>
+    <Card className="overflow-hidden">
+      <Link href={questHref}>
+        <CardHeader className="p-0 relative">
+          {quest.image ? (
+            <Image
+              src={quest.image || '/placeholder.svg'}
+              alt={quest.title}
+              width={300}
+              height={200}
+              className="w-full h-48 object-cover"
+            />
+          ) : (
+            <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-400">No image available</span>
             </div>
-            <div className="flex items-center space-x-1">
-              {[1, 2, 3, 4].map((star) => (
-                <Star key={star} className="w-5 h-5 text-yellow-400" />
-              ))}
-              <Star className="w-5 h-5 text-gray-300" />
-            </div>
+          )}
+          {quest.approved && (
+            <Badge
+              variant={quest.approved ? 'success' : 'secondary'}
+              className={cn(
+                'absolute top-1 right-2',
+                quest.approved
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+              )}
+            >
+              Approved
+            </Badge>
+          )}
+        </CardHeader>
+        <CardContent className="p-4">
+          <CardTitle className="mb-2">{quest.title}</CardTitle>
+          <p className="text-sm text-gray-600 mb-4">{quest.description}</p>
+          <div className="flex items-center justify-between text-sm text-gray-500">
+            {quest.duration && (
+              <div className="flex items-center">
+                <Clock className="w-4 h-4 mr-1" />
+                <span>{quest.duration} min</span>
+              </div>
+            )}
+            {quest.reviewScore !== undefined &&
+              quest.reviewCount !== undefined && (
+                <div className="flex items-center">
+                  <Star className="w-4 h-4 mr-1 text-yellow-400 fill-current" />
+                  <span>
+                    {quest.reviewScore.toFixed(1)} ({quest.reviewCount} reviews)
+                  </span>
+                </div>
+              )}
           </div>
-        </div>
-
-        <div className="mt-6">
-          <Link href={gameHref} className={cn(buttonVariants(), 'w-full')}>
-            Start
-          </Link>
-        </div>
-      </CardContent>
+        </CardContent>
+      </Link>
     </Card>
   );
 };
