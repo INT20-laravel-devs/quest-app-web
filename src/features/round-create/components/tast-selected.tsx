@@ -23,13 +23,13 @@ const TaskSelected: FC<TaskSelectedProps> = ({
   const renderOpenForm = () => (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="taskDescription">Task Description</Label>
+        <Label htmlFor="taskQuestion">Question</Label>
         <Textarea
-          id="taskDescription"
-          placeholder="Enter task description..."
-          value={formData.description || ''}
+          id="taskQuestion"
+          placeholder="Enter task..."
+          value={formData.question || ''}
           onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
+            setFormData({ ...formData, question: e.target.value })
           }
           className="min-h-[100px]"
         />
@@ -145,10 +145,9 @@ const TaskSelected: FC<TaskSelectedProps> = ({
       setFormData({ ...formData, options: newOptions });
     };
 
-    // Find the index of the correct option
-    const correctOptionIndex = formData.options?.findIndex(
-      (option: any) => option.isCorrect,
-    );
+    const correctOptionIndex = formData.options
+      ? formData.options.findIndex((option: any) => option.isCorrect)
+      : -1;
 
     return (
       <div className="space-y-6">
