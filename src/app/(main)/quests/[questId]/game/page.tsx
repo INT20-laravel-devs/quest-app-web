@@ -7,7 +7,13 @@ interface QuestGameProps {
 }
 
 const QuestGame = ({ params }: QuestGameProps) => {
-  return <QuestTasks questId={params.questId} />;
+  return (
+    <QuestTasks
+      durationMinutes={20}
+      startTime={new Date()}
+      questId={params.questId}
+    />
+  );
 };
 
 export default QuestGame;
