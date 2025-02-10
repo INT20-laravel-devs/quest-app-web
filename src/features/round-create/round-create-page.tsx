@@ -1,12 +1,9 @@
-'use client'
+'use client';
 
 import React, { FC, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Card,
-
-} from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 
 import RoundType from './components/round-type';
 import TaskContent from './components/task-content';
@@ -14,7 +11,6 @@ import TimeLimit from './components/time-limit';
 import PointsContent from './components/points-content';
 import { useRouter } from 'next/navigation';
 import { Routes } from '@/constants/routes';
-
 
 export interface RoundData {
   roundType: string;
@@ -28,7 +24,7 @@ export interface RoundData {
 }
 
 export interface RoundTypeProps {
-  formData: any;
+  formData: RoundData;
   setFormData: (data: RoundData) => void;
 }
 
@@ -43,7 +39,7 @@ const RoundCreatePage: FC = () => {
     timeLimit: '',
     points: '',
   });
-   const router = useRouter();
+  const router = useRouter();
 
   const [step, setStep] = useState(1);
 
@@ -54,7 +50,7 @@ const RoundCreatePage: FC = () => {
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
     else {
-    //   onCancel();
+      //   onCancel();
       router.push(Routes.QUEST_CREATE);
     }
   };
@@ -62,7 +58,7 @@ const RoundCreatePage: FC = () => {
   const renderStepContent = () => {
     switch (step) {
       case 1:
-        return <RoundType formData={formData} setFormData={setFormData}/>
+        return <RoundType formData={formData} setFormData={setFormData} />;
       case 2:
         return <TaskContent formData={formData} setFormData={setFormData} />;
       case 3:
