@@ -18,16 +18,8 @@ const RoundCreatePage = ({ questId }: RoundCreatePageProps) => {
   const [tasks, setTasks] = useState<CreateTaskBody[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleTaskCreated = (data: FormData) => {
-    const image = data.get('file') as File;
-    const task = data.get('createTask') as unknown as CreateTaskBody;
-
-    const newTask = {
-      ...task,
-      imageLink: image ? URL.createObjectURL(image) : null,
-    };
-
-    setTasks((prevTasks) => [...prevTasks, newTask]);
+  const handleTaskCreated = async () => {
+    await fetchTasks();
     setIsDialogOpen(false);
   };
 
@@ -42,17 +34,17 @@ const RoundCreatePage = ({ questId }: RoundCreatePageProps) => {
   }, [questId]);
 
   return (
-    <div className="min-h-screen py-16 px-4 container">
+    <div className="min-h-screen py-10 px-4 container">
       <Header />
       <div className="max-w-xl mx-auto py-2">
         <FormStepper steps={['General', 'Tasks', 'Results']} currentStep={2} />
       </div>
-      <div className="max-w-4xl mx-auto space-y-2">
+      <div className="max-w-5xl mx-auto space-y-3">
         <Button onClick={() => setIsDialogOpen(true)}>
           <PlusCircle className="mr-2 h-4 w-4" /> Create Task
         </Button>
-        <div className="max-w-4xl mx-auto">
-          <div className="rounded-xl border bg-background/50 backdrop-blur-sm p-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="rounded-xl border bg-background/50 backdrop-blur-sm p-6">
             <TaskList tasks={tasks} />
           </div>
         </div>

@@ -8,7 +8,7 @@ interface StepperProps {
 
 const FormStepper = ({ currentStep, steps }: StepperProps) => {
   return (
-    <div className="flex flex-col mx-auto gap-3 sm:gap-8 w-full max-w-3xl mb-8">
+    <div className="flex flex-col mx-auto gap-3 w-full max-w-3xl mb-8">
       <div className="flex items-center justify-between px-4">
         {steps.map((step, index) => (
           <div key={index} className="flex items-center flex-1 last:flex-none">
@@ -39,7 +39,7 @@ const FormStepper = ({ currentStep, steps }: StepperProps) => {
           </div>
         ))}
       </div>
-      <div className="flex justify-between px-4 text-sm">
+      <div className="flex justify-between px-3 text-sm">
         {steps.map((step, index) => (
           <span
             key={index}

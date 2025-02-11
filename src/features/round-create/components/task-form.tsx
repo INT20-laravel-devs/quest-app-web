@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { TaskType } from '@/types/quests';
+import 'react-image-crop/dist/ReactCrop.css';
 import {
   Form,
   FormControl,
@@ -20,12 +21,20 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { createTask } from '@/api/quests';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import ReactCrop, { Crop } from 'react-image-crop';
+import { createTask } from '@/api/quests';
 
 const variantSchema = z.object({
   content: z.string().min(1, 'Variant content is required'),
   isCorrect: z.boolean().optional(),
+});
+
+const coordinateSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  endX: z.number().min(0).max(1),
+  endY: z.number().min(0).max(1),
 });
 
 const taskSchema = z
@@ -35,12 +44,7 @@ const taskSchema = z
     description: z.string().min(1, 'Description is required'),
     points: z.number().min(0, 'Points must be a positive number'),
     variant: z.array(variantSchema).optional(),
-    coordinate: z
-      .object({
-        x: z.number(),
-        y: z.number(),
-      })
-      .optional(),
+    coordinate: coordinateSchema.optional(),
   })
   .refine(
     (data) => {
@@ -65,6 +69,8 @@ const taskSchema = z
     },
   );
 
+type TaskFormData = z.infer<typeof taskSchema>;
+
 interface TaskFormProps {
   questId: string;
   initialType: TaskType;
@@ -78,8 +84,15 @@ export default function TaskForm({
   onBack,
   onSubmit,
 }: TaskFormProps) {
-  const [imageFile, setImageFile] = useState(null);
-  const [selectedPoint, setSelectedPoint] = useState(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [crop, setCrop] = useState<Crop>({
+    unit: '%',
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
 
   const form = useForm({
     resolver: zodResolver(taskSchema),
@@ -95,7 +108,10 @@ export default function TaskForm({
               { content: '', isCorrect: false },
             ]
           : undefined,
-      coordinate: initialType === TaskType.IMAGE ? { x: 0, y: 0 } : undefined,
+      coordinate:
+        initialType === TaskType.IMAGE
+          ? { x: 0, y: 0, endX: 0, endY: 0 }
+          : undefined,
     },
   });
 
@@ -104,22 +120,40 @@ export default function TaskForm({
     name: 'variant',
   });
 
-  const handleImageUpload = (e) => {
+  useEffect(() => {
+    if (imageFile) {
+      const objectUrl = URL.createObjectURL(imageFile);
+      setImageUrl(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  }, [imageFile]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
+      setCrop({
+        unit: '%',
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      });
+      form.setValue('coordinate', { x: 0, y: 0, endX: 0, endY: 0 });
     }
   };
 
-  const handleImageClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    setSelectedPoint({ x, y });
-    form.setValue('coordinate', { x, y });
+  const handleCropChange = (newCrop: Crop) => {
+    setCrop(newCrop);
+    form.setValue('coordinate', {
+      x: newCrop.x / 100,
+      y: newCrop.y / 100,
+      endX: (newCrop.x + newCrop.width) / 100,
+      endY: (newCrop.y + newCrop.height) / 100,
+    });
   };
 
-  const onSubmitForm = async (data) => {
+  const onSubmitForm = async (data: TaskFormData) => {
     const formData = new FormData();
 
     if (imageFile) {
@@ -127,7 +161,9 @@ export default function TaskForm({
     }
 
     if (data.type === TaskType.OPEN) {
-      data.variant = [{ content: data.variant[0].content, isCorrect: true }];
+      data.variant = [
+        { content: data?.variant?.at(0)?.content as string, isCorrect: true },
+      ];
     }
 
     const createTaskBody = {
@@ -135,6 +171,8 @@ export default function TaskForm({
       order: 1,
       ...data,
     };
+
+    console.log(imageFile);
 
     formData.append('createTask', JSON.stringify(createTaskBody));
 
@@ -272,12 +310,12 @@ export default function TaskForm({
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmitForm)}
-        className="space-y-4 px-2"
-      >
-        <ScrollArea className="max-h-[60vh]">
+    <ScrollArea className="max-h-[60vh]">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmitForm)}
+          className="space-y-4 mx-2"
+        >
           <input type="hidden" {...form.register('type')} />
           <Button
             type="button"
@@ -345,32 +383,27 @@ export default function TaskForm({
                 accept="image/*"
                 onChange={handleImageUpload}
               />
-              {imageFile && (
+              {imageFile && imageUrl && (
                 <div className="relative mt-2">
-                  <img
-                    src={URL.createObjectURL(imageFile)}
-                    alt="Selected"
-                    className="max-w-full h-auto cursor-crosshair"
-                    onClick={handleImageClick}
-                  />
-                  {selectedPoint && (
-                    <div
-                      className="absolute w-4 h-4 bg-red-500 rounded-full transform -translate-x-1/2 -translate-y-1/2"
-                      style={{
-                        left: `${selectedPoint?.x * 100}%`,
-                        top: `${selectedPoint?.y * 100}%`,
-                      }}
+                  <ReactCrop
+                    crop={crop}
+                    onChange={(_, percentCrop) => handleCropChange(percentCrop)}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt="Selected"
+                      className="max-w-full h-auto"
                     />
-                  )}
+                  </ReactCrop>
                 </div>
               )}
             </div>
           )}
-        </ScrollArea>
-        <Button type="submit" className="w-full">
-          Create Task
-        </Button>
-      </form>
-    </Form>
+          <Button type="submit" className="w-full">
+            Create Task
+          </Button>
+        </form>
+      </Form>
+    </ScrollArea>
   );
 }

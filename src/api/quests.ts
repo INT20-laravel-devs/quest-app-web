@@ -54,7 +54,7 @@ export const getTasks = async (questId: string) => {
       throw new Error(error.message);
     }
 
-    return (await response.json()) as Quest[];
+    return (await response.json()) as CreateTaskBody[];
   } catch (e) {
     throw e;
   }

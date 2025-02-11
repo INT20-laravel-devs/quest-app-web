@@ -23,6 +23,9 @@ export enum TaskType {
 export interface Coordinate {
   x: number;
   y: number;
+  endX: number | null;
+  endY: number | null;
+  imageLink: string | null;
 }
 
 export interface Variant {

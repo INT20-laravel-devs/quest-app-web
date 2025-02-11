@@ -1,10 +1,5 @@
 import { type CreateTaskBody, TaskType } from '@/types/quests';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
+import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { taskTypes } from '@/constants/tasks';
 
@@ -34,25 +29,26 @@ export default function TaskList({ tasks }: TaskListProps) {
             key={task.id}
             className="flex flex-col overflow-hidden group hover:shadow-lg transition-shadow"
           >
-            {task.imageLink && (
-              <div className="relative h-48 overflow-hidden">
-                <Image
-                  src={task.imageLink || '/placeholder.svg'}
-                  alt={task.title}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-105"
-                />
-                {task.coordinate && (
-                  <div
-                    className="absolute w-4 h-4 bg-red-500 rounded-full transform -translate-x-1/2 -translate-y-1/2 border-2 border-white"
-                    style={{
-                      left: `${task.coordinate.x * 100}%`,
-                      top: `${task.coordinate.y * 100}%`,
-                    }}
-                  />
-                )}
-              </div>
-            )}
+            {/*TODO: Fix this when BE will be fixed*/}
+            {/*{task.imageLink && (*/}
+            {/*  <div className="relative h-48 overflow-hidden">*/}
+            {/*    <Image*/}
+            {/*      src={task.imageLink || '/placeholder.svg'}*/}
+            {/*      alt={task.title}*/}
+            {/*      fill*/}
+            {/*      className="object-cover transition-transform group-hover:scale-105"*/}
+            {/*    />*/}
+            {/*    {task.coordinate && (*/}
+            {/*      <div*/}
+            {/*        className="absolute w-4 h-4 bg-red-500 rounded-full transform -translate-x-1/2 -translate-y-1/2 border-2 border-white"*/}
+            {/*        style={{*/}
+            {/*          left: `${task.coordinate.x * 100}%`,*/}
+            {/*          top: `${task.coordinate.y * 100}%`,*/}
+            {/*        }}*/}
+            {/*      />*/}
+            {/*    )}*/}
+            {/*  </div>*/}
+            {/*)}*/}
             <CardHeader className="space-y-1">
               <div className="flex items-center justify-between">
                 <Badge variant="outline" className="flex items-center gap-1">
