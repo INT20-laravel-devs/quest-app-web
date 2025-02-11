@@ -13,16 +13,16 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MapPin, Timer } from 'lucide-react';
+import { MapPin } from 'lucide-react';
+import { TaskType } from '@/types/quests';
 
 export interface Task {
   id: number;
   title: string;
   description: string;
-  type: 'single' | 'multiple' | 'text' | 'map' | 'image-point';
+  type: TaskType;
   options?: string[];
   image?: string;
-  timeLimit: number;
   completed: boolean;
 }
 
@@ -42,12 +42,12 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
   const [imagePoint, setImagePoint] = useState<{ x: number; y: number } | null>(
     null,
   );
-  const [remainingTime, setRemainingTime] = useState(task.timeLimit);
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
 
   const handleAnswer = (value: any) => {
+    console.log(answer);
     setAnswer(value);
   };
 
@@ -61,49 +61,55 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
 
   const renderTaskContent = () => {
     switch (task.type) {
-      case 'single':
+      case TaskType.SINGLE:
         return (
-          <RadioGroup onValueChange={handleAnswer} className="space-y-3">
-            {task.options?.map((option) => (
+          <RadioGroup
+            onValueChange={(value) => handleAnswer(value)}
+            value={answer}
+            className="space-y-3"
+          >
+            {task.variants?.map((variant: Variant) => (
               <div
-                key={option}
+                key={variant.id}
                 className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50"
               >
-                <RadioGroupItem value={option} id={option} />
-                <Label htmlFor={option}>{option}</Label>
+                <RadioGroupItem value={variant.id} id={variant.id} />
+                <Label htmlFor={variant.id}>{variant.content}</Label>
               </div>
             ))}
           </RadioGroup>
         );
 
-      case 'multiple':
+      case TaskType.MULTIPLE:
         return (
           <div className="space-y-3">
-            {task.options?.map((option) => (
+            {task.variants?.map((variant: Variant) => (
               <div
-                key={option}
+                key={variant.id}
                 className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50"
               >
                 <Checkbox
-                  id={option}
+                  id={variant.id}
                   onCheckedChange={(checked) => {
                     const newAnswer = answer || [];
                     if (checked) {
-                      handleAnswer([...newAnswer, option]);
+                      handleAnswer([...newAnswer, variant.id]);
                     } else {
                       handleAnswer(
-                        newAnswer.filter((item: string) => item !== option),
+                        newAnswer.filter(
+                          (selectedId: string) => selectedId !== variant.id,
+                        ),
                       );
                     }
                   }}
+                  checked={answer?.includes(variant.id)}
                 />
-                <Label htmlFor={option}>{option}</Label>
+                <Label htmlFor={variant.id}>{variant.content}</Label>
               </div>
             ))}
           </div>
         );
-
-      case 'text':
+      case TaskType.OPEN:
         return (
           <div className="space-y-3">
             <Label htmlFor="answer">Your Answer</Label>
@@ -116,8 +122,8 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
           </div>
         );
 
-      case 'map':
-      case 'image-point':
+      case TaskType.IMAGE:
+      case TaskType.MAP:
         return (
           <div className="space-y-3">
             <div
@@ -167,13 +173,6 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <span>{task.title}</span>
-              <div className="flex items-center gap-2 text-sm font-normal">
-                <Timer className="w-4 h-4" />
-                <span>
-                  {Math.floor(remainingTime / 60)}:
-                  {(remainingTime % 60).toString().padStart(2, '0')}
-                </span>
-              </div>
             </DialogTitle>
           </DialogHeader>
 

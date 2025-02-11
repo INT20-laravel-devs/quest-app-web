@@ -18,6 +18,7 @@ export enum TaskType {
   MULTIPLE = 'MULTIPLE',
   OPEN = 'OPEN',
   IMAGE = 'IMAGE',
+  MAP = "MAP"
 }
 
 export interface Coordinate {

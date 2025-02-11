@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import FormStepper from '@/features/quests/components/form-stepper';
+import { TaskType } from '@/types/quests';
 
 type FormData = {
   name: string;
@@ -90,7 +91,7 @@ export default function MultiStepForm() {
     setTasks([...tasks, currentTask]);
     setCurrentTask({
       description: '',
-      type: 'single',
+      type: TaskType.SINGLE,
       answers: [
         { text: '', isCorrect: true },
         { text: '', isCorrect: true },

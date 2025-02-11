@@ -1,5 +1,10 @@
 import { type CreateTaskBody, TaskType } from '@/types/quests';
-import { Card, CardFooter, CardHeader } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { taskTypes } from '@/constants/tasks';
 

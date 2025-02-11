@@ -42,6 +42,8 @@ export const createTask = async (data: FormData) => {
   }
 };
 
+
+
 export const getTasks = async (questId: string) => {
   try {
     const response = await fetch(`${API_URL}/quest/${questId}/tasks`, {
@@ -59,3 +61,24 @@ export const getTasks = async (questId: string) => {
     throw e;
   }
 };
+
+
+
+export const getQuests = async () => {
+  try {
+    const response = await fetch(`${API_URL}/quest`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message);
+    }
+
+    return (await response.json()) as Quest[];
+  } catch (e) {
+    throw e;
+  }
+};
+

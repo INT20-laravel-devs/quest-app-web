@@ -10,7 +10,13 @@ import Header from '@/features/quest-create/components/header';
 import FormStepper from '@/features/quests/components/form-stepper';
 import { getTasks } from '@/api/quests';
 
-interface RoundCreatePageProps {
+
+export interface RoundTypeProps {
+  formData: any;
+  setFormData: any;
+}
+
+export interface RoundCreatePageProps {
   questId: string;
 }
 
@@ -24,8 +30,7 @@ const RoundCreatePage = ({ questId }: RoundCreatePageProps) => {
   };
 
   const fetchTasks = async () => {
-    const res = await getTasks(questId);
-
+    const res = await getTasks(questId);    
     setTasks(res);
   };
 

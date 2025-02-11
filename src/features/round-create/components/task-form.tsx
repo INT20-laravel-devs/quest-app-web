@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ import { createTask } from '@/api/quests';
 
 const variantSchema = z.object({
   content: z.string().min(1, 'Variant content is required'),
-  isCorrect: z.boolean().optional(),
+  isCorrect: z.boolean().default(false),
 });
 
 const coordinateSchema = z.object({
@@ -54,12 +54,6 @@ const taskSchema = z
           data.variant.length >= 2 &&
           data.variant.some((v) => v.isCorrect)
         );
-      }
-      if (data.type === TaskType.OPEN) {
-        return true;
-      }
-      if (data.type === TaskType.IMAGE) {
-        return !!data.coordinate;
       }
       return true;
     },
@@ -176,11 +170,13 @@ export default function TaskForm({
 
     formData.append('createTask', JSON.stringify(createTaskBody));
 
-    const task = await createTask(formData);
-
-    console.log(task);
-
-    onSubmit(formData);
+    try {
+      const task = await createTask(formData);
+      console.log('Created task:', task);
+      onSubmit(formData);
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
   };
 
   const handleAddVariant = () => {
@@ -190,16 +186,19 @@ export default function TaskForm({
   const renderVariantFields = () => {
     if (initialType === TaskType.OPEN) {
       return (
-        <div className="space-y-4">
-          <Label>Correct Answer</Label>
-          <Controller
-            name="variant.0.content"
-            control={form.control}
-            render={({ field }) => (
-              <Input {...field} placeholder="Correct answer" />
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="variant.0.content"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Correct Answer</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Correct answer" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       );
     }
 
@@ -208,7 +207,7 @@ export default function TaskForm({
         <div className="space-y-4">
           <Label>Answer Options</Label>
           <RadioGroup
-            value={fields.findIndex((v) => v.isCorrect).toString()}
+            value={fields.findIndex((v) => v.isCorrect)?.toString() || '0'}
             onValueChange={(value) => {
               const index = parseInt(value, 10);
               form.setValue(
@@ -226,11 +225,13 @@ export default function TaskForm({
                   value={index.toString()}
                   id={`radio-${index}`}
                 />
-                <Controller
-                  name={`variant.${index}.content`}
+                <FormField
                   control={form.control}
+                  name={`variant.${index}.content`}
                   render={({ field }) => (
-                    <Input {...field} placeholder="Option content" />
+                    <FormControl>
+                      <Input {...field} placeholder="Option content" />
+                    </FormControl>
                   )}
                 />
                 {index > 1 && (
@@ -266,21 +267,25 @@ export default function TaskForm({
           <Label>Answer Options</Label>
           {fields.map((field, index) => (
             <div key={field.id} className="flex items-center space-x-2">
-              <Controller
-                name={`variant.${index}.isCorrect`}
+              <FormField
                 control={form.control}
+                name={`variant.${index}.isCorrect`}
                 render={({ field }) => (
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 )}
               />
-              <Controller
-                name={`variant.${index}.content`}
+              <FormField
                 control={form.control}
+                name={`variant.${index}.content`}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Option content" />
+                  <FormControl>
+                    <Input {...field} placeholder="Option content" />
+                  </FormControl>
                 )}
               />
               {index > 1 && (

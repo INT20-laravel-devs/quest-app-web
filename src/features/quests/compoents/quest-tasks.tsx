@@ -11,76 +11,77 @@ import { useEffect, useState } from 'react';
 import QuestTaskModal, {
   Task,
 } from '@/features/quests/compoents/quest-task-modal';
+import { getTasks } from '@/api/quests';
 
-const tasksMock: Task[] = [
-  {
-    id: 1,
-    title: 'Ancient Riddle',
-    description:
-      'Solve this riddle to progress: What has keys, but no locks; space, but no room; you can enter, but not go in?',
-    type: 'single',
-    options: ['A Piano', 'A Keyboard', 'A Map', 'A Book'],
-    timeLimit: 120,
-    completed: false,
-  },
-  {
-    id: 2,
-    title: 'Forest Navigation',
-    description:
-      'Navigate through the enchanted forest. Choose your path wisely.',
-    type: 'map',
-    image: '/placeholder.svg?height=256&width=512',
-    timeLimit: 180,
-    completed: false,
-  },
-  {
-    id: 3,
-    title: 'Magical Ingredients',
-    description:
-      'Select all the ingredients needed for the invisibility potion.',
-    type: 'multiple',
-    options: [
-      'Moonstone',
-      'Dragon scales',
-      'Unicorn hair',
-      'Troll sweat',
-      'Phoenix feather',
-    ],
-    timeLimit: 150,
-    completed: false,
-  },
-  {
-    id: 4,
-    title: 'Spell Incantation',
-    description: 'Write the correct spell incantation to open the sealed door.',
-    type: 'text',
-    timeLimit: 90,
-    completed: false,
-  },
-  {
-    id: 5,
-    title: 'Hidden Symbol',
-    description: 'Find and click on the hidden magical symbol in the image.',
-    type: 'image-point',
-    image: '/placeholder.svg?height=256&width=512',
-    timeLimit: 120,
-    completed: false,
-  },
-  {
-    id: 6,
-    title: 'Final Challenge',
-    description: 'Choose your final path to claim the treasure.',
-    type: 'single',
-    options: [
-      'The Path of Courage',
-      'The Path of Wisdom',
-      'The Path of Loyalty',
-      'The Path of Power',
-    ],
-    timeLimit: 240,
-    completed: false,
-  },
-];
+// const tasksMock: Task[] = [
+//   {
+//     id: 1,
+//     title: 'Ancient Riddle',
+//     description:
+//       'Solve this riddle to progress: What has keys, but no locks; space, but no room; you can enter, but not go in?',
+//     type: 'single',
+//     options: ['A Piano', 'A Keyboard', 'A Map', 'A Book'],
+//     timeLimit: 120,
+//     completed: false,
+//   },
+//   {
+//     id: 2,
+//     title: 'Forest Navigation',
+//     description:
+//       'Navigate through the enchanted forest. Choose your path wisely.',
+//     type: 'map',
+//     image: '/placeholder.svg?height=256&width=512',
+//     timeLimit: 180,
+//     completed: false,
+//   },
+//   {
+//     id: 3,
+//     title: 'Magical Ingredients',
+//     description:
+//       'Select all the ingredients needed for the invisibility potion.',
+//     type: 'multiple',
+//     options: [
+//       'Moonstone',
+//       'Dragon scales',
+//       'Unicorn hair',
+//       'Troll sweat',
+//       'Phoenix feather',
+//     ],
+//     timeLimit: 150,
+//     completed: false,
+//   },
+//   {
+//     id: 4,
+//     title: 'Spell Incantation',
+//     description: 'Write the correct spell incantation to open the sealed door.',
+//     type: 'text',
+//     timeLimit: 90,
+//     completed: false,
+//   },
+//   {
+//     id: 5,
+//     title: 'Hidden Symbol',
+//     description: 'Find and click on the hidden magical symbol in the image.',
+//     type: 'image-point',
+//     image: '/placeholder.svg?height=256&width=512',
+//     timeLimit: 120,
+//     completed: false,
+//   },
+//   {
+//     id: 6,
+//     title: 'Final Challenge',
+//     description: 'Choose your final path to claim the treasure.',
+//     type: 'single',
+//     options: [
+//       'The Path of Courage',
+//       'The Path of Wisdom',
+//       'The Path of Loyalty',
+//       'The Path of Power',
+//     ],
+//     timeLimit: 240,
+//     completed: false,
+//   },
+// ];
 
 interface QuestTasksProps {
   questId: string;
@@ -90,11 +91,21 @@ interface QuestTasksProps {
 
 const QuestTasks = ({
   questId,
+  data,
   startTime,
   durationMinutes,
 }: QuestTasksProps) => {
   const [remainingTime, setRemainingTime] = useState(durationMinutes * 60);
-  const [tasks, setTasks] = useState(tasksMock);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+
+ 
+
+  useEffect(() => {
+    setTasks(data);
+    console.log(data);
+  }, [questId]);
+
 
   useEffect(() => {
     const endTime = new Date(startTime.getTime() + durationMinutes * 60000);

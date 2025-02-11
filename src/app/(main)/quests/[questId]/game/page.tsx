@@ -1,3 +1,4 @@
+import { getTasks } from '@/api/quests';
 import QuestTasks from '@/features/quests/compoents/quest-tasks';
 
 interface QuestGameProps {
@@ -6,11 +7,15 @@ interface QuestGameProps {
   };
 }
 
-const QuestGame = ({ params }: QuestGameProps) => {
+
+
+const QuestGame = async ({ params }: QuestGameProps) => {
+  const data = await getTasks(params.questId);
   return (
     <QuestTasks
       durationMinutes={20}
       startTime={new Date()}
+      data={data}
       questId={params.questId}
     />
   );
