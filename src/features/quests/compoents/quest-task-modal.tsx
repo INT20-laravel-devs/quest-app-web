@@ -14,20 +14,32 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MapPin } from 'lucide-react';
-import { TaskType } from '@/types/quests';
 
-export interface Task {
-  id: number;
+export enum ModalTaskType {
+  SINGLE = 'SINGLE',
+  MULTIPLE = 'MULTIPLE',
+  OPEN = 'OPEN',
+  IMAGE = 'IMAGE',
+  MAP = 'MAP',
+}
+
+export interface ModalVariant {
+  id: string;
+  content: string;
+}
+
+export interface ModalTask {
+  id: number; // number in the modal
   title: string;
   description: string;
-  type: TaskType;
-  options?: string[];
+  type: ModalTaskType;
+  variants?: ModalVariant[];
   image?: string;
   completed: boolean;
 }
 
 interface QuestTaskModalProps {
-  task: Task;
+  task: ModalTask;
   onSubmit: (taskId: number, answer: any) => void;
   children: React.ReactNode;
 }
@@ -44,10 +56,13 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
   );
 
   const handleOpen = () => setIsOpen(true);
-  const handleClose = () => setIsOpen(false);
+  const handleClose = () => {
+    setIsOpen(false);
+    setAnswer(null);
+    setImagePoint(null);
+  };
 
   const handleAnswer = (value: any) => {
-    console.log(answer);
     setAnswer(value);
   };
 
@@ -61,14 +76,14 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
 
   const renderTaskContent = () => {
     switch (task.type) {
-      case TaskType.SINGLE:
+      case ModalTaskType.SINGLE:
         return (
           <RadioGroup
             onValueChange={(value) => handleAnswer(value)}
             value={answer}
             className="space-y-3"
           >
-            {task.variants?.map((variant: Variant) => (
+            {task.variants?.map((variant) => (
               <div
                 key={variant.id}
                 className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50"
@@ -80,10 +95,10 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
           </RadioGroup>
         );
 
-      case TaskType.MULTIPLE:
+      case ModalTaskType.MULTIPLE:
         return (
           <div className="space-y-3">
-            {task.variants?.map((variant: Variant) => (
+            {task.variants?.map((variant) => (
               <div
                 key={variant.id}
                 className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50"
@@ -91,7 +106,7 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
                 <Checkbox
                   id={variant.id}
                   onCheckedChange={(checked) => {
-                    const newAnswer = answer || [];
+                    const newAnswer = Array.isArray(answer) ? answer : [];
                     if (checked) {
                       handleAnswer([...newAnswer, variant.id]);
                     } else {
@@ -102,14 +117,15 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
                       );
                     }
                   }}
-                  checked={answer?.includes(variant.id)}
+                  checked={Array.isArray(answer) && answer.includes(variant.id)}
                 />
                 <Label htmlFor={variant.id}>{variant.content}</Label>
               </div>
             ))}
           </div>
         );
-      case TaskType.OPEN:
+
+      case ModalTaskType.OPEN:
         return (
           <div className="space-y-3">
             <Label htmlFor="answer">Your Answer</Label>
@@ -122,8 +138,8 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
           </div>
         );
 
-      case TaskType.IMAGE:
-      case TaskType.MAP:
+      case ModalTaskType.IMAGE:
+      case ModalTaskType.MAP:
         return (
           <div className="space-y-3">
             <div
