@@ -1,4 +1,4 @@
-import RoundCreatePage from '@/features/round-create/round-create-page';
+import RoundCreatePage from '@/features/quest-create/round-create-page';
 
 interface QuestCreateTasksProps {
   params: {

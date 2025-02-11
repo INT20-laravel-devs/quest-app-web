@@ -1,10 +1,5 @@
 import { type CreateTaskBody, TaskType } from '@/types/quests';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
+import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { taskTypes } from '@/constants/tasks';
 
@@ -16,7 +11,7 @@ const getTaskTypeContent = (type: TaskType) =>
   taskTypes.find((t) => t.type === type);
 
 export default function TaskList({ tasks }: TaskListProps) {
-  if (tasks.length === 0) {
+  if (!tasks || tasks?.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-lg text-muted-foreground">No tasks created yet</p>

@@ -8,6 +8,7 @@ export enum Routes {
   QUEST_GAME = '/quests/[id]/game',
   CREATE_QUEST = '/quests/create',
   QUEST_CREATE_TASKS = '/quests/create/[id]',
+  QUEST_PUBLISH = '/quests/create/[id]/publish',
 }
 
 export const HeaderRoutes = [

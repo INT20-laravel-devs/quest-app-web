@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { TaskType } from '@/types/quests';
-import TaskForm from '@/features/round-create/components/task-form';
+import TaskForm from '@/features/quest-create/components/task-form';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { taskTypes } from '@/constants/tasks';
 

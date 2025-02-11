@@ -42,8 +42,6 @@ export const createTask = async (data: FormData) => {
   }
 };
 
-
-
 export const getTasks = async (questId: string) => {
   try {
     const response = await fetch(`${API_URL}/quest/${questId}/tasks`, {
@@ -61,8 +59,6 @@ export const getTasks = async (questId: string) => {
     throw e;
   }
 };
-
-
 
 export const getQuests = async () => {
   try {
@@ -82,3 +78,24 @@ export const getQuests = async () => {
   }
 };
 
+export const publishQuest = async (questId: string) => {
+  try {
+    const response = await fetch(`${API_URL}/quest`, {
+      method: 'PATCH',
+      credentials: 'include',
+      body: JSON.stringify({
+        questId,
+        isPublished: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message);
+    }
+
+    return response;
+  } catch (e) {
+    throw e;
+  }
+};
