@@ -7,3 +7,39 @@ export const createQuestSchema = z.object({
 });
 
 export type CreateQuestBody = z.infer<typeof createQuestSchema>;
+
+export interface Quest extends CreateQuestBody {
+  id: string;
+  ownerId: string;
+}
+
+export enum TaskType {
+  SINGLE = 'SINGLE',
+  MULTIPLE = 'MULTIPLE',
+  OPEN = 'OPEN',
+  IMAGE = 'IMAGE',
+}
+
+export interface Coordinate {
+  x: number;
+  y: number;
+}
+
+export interface Variant {
+  content: string;
+  isCorrect: boolean;
+}
+
+export interface CreateTaskBody {
+  id: string;
+  type: TaskType;
+  title: string;
+  description: string;
+  points: number;
+  coordinate?: Coordinate;
+  variants?: Variant[];
+}
+
+export interface TaskBody extends CreateTaskBody {
+  imageLink?: string;
+}

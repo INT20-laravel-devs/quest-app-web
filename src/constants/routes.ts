@@ -1,14 +1,13 @@
 export enum Routes {
   HOME = '/',
   QUESTS = '/quests',
-  QUEST_CREATE = '/quest-create',
-  ROUND_CREATE = '/round-create',
   SIGN_IN = '/auth/sign-in',
   SIGN_UP = '/auth/sign-up',
   PROFILE = '/profile',
   QUEST = '/quests/[id]',
   QUEST_GAME = '/quests/[id]/game',
   CREATE_QUEST = '/quests/create',
+  QUEST_CREATE_TASKS = '/quests/create/[id]',
 }
 
 export const HeaderRoutes = [

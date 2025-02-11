@@ -93,7 +93,7 @@ const QuestsPage: FC = () => {
       </div>
       <div className="py-4 flex justify-between">
         <QuestFilters />
-        <Button onClick={() => router.push(Routes.QUEST_CREATE)}>
+        <Button onClick={() => router.push(Routes.CREATE_QUEST)}>
           Add new quest
         </Button>
       </div>

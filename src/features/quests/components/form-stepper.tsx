@@ -1,4 +1,5 @@
 import { cn } from '@/utils/styles-utils';
+import { Check } from 'lucide-react';
 
 interface StepperProps {
   currentStep: number;
@@ -19,9 +20,13 @@ const FormStepper = ({ currentStep, steps }: StepperProps) => {
                   : 'border-muted text-muted-foreground',
               )}
             >
-              <span className="text-sm sm:text-base font-medium">
-                {index + 1}
-              </span>
+              {currentStep <= index + 1 ? (
+                <span className="text-sm sm:text-base font-medium">
+                  {index + 1}
+                </span>
+              ) : (
+                <Check size={20} className="text-primary-foreground" />
+              )}
             </div>
             {index < steps.length - 1 && (
               <div

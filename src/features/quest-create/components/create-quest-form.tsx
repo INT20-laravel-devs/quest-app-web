@@ -14,6 +14,7 @@ import { createQuest } from '@/api/quests';
 import { toast } from 'sonner';
 
 interface CreateQuestFormProps {
+  questId: string;
   onNext?: () => void;
   onCancel?: () => void;
 }
@@ -72,10 +73,15 @@ const CreateQuestForm: FC<CreateQuestFormProps> = ({
     //   return;
     // }
     try {
-      await createQuest(data);
-      onNext();
-      router.push(Routes.ROUND_CREATE);
+      const quest = await createQuest(data);
+      const tasksCreateHref = Routes.QUEST_CREATE_TASKS.replace(
+        '[id]',
+        quest.id,
+      );
+
+      router.push(tasksCreateHref);
       toast.success('Quest created successfully');
+      onNext();
     } catch (e) {
       if (e instanceof Error) {
         toast.error(e.message);
