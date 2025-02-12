@@ -20,7 +20,7 @@ interface Message {
 
 export function ChatInterface() {
   const user = useAuthStore((state) => state.user);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
 
   useEffect(() => {
@@ -28,9 +28,9 @@ export function ChatInterface() {
       console.log(data);
     });
 
-    socket.on('message', (message: Message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
+    // socket.on('message', (message: Message) => {
+    //   setMessages((prevMessages) => [...prevMessages, message]);
+    // });
   }, []);
 
   const handleSendMessage = () => {

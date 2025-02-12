@@ -79,7 +79,7 @@ const UpdateForm = () => {
           render={({ field }) => (
             <ImageUpload
               onChange={(file) => field.onChange(file)}
-              imageLink={user?.avatarLink}
+              imageLink={user?.avatarLink as string}
             />
           )}
         />
