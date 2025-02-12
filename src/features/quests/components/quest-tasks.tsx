@@ -1,29 +1,35 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useActionState, useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
-import Link from 'next/link';
 import { Progress } from '@/components/ui/progress';
 import { Routes } from '@/constants/routes';
 import { cn } from '@/utils/styles-utils';
-
-// Import your modal and the store
 import QuestTaskModal, {
   Task,
 } from '@/features/quests/components/quest-task-modal';
 import { useResultStore } from '@/store/useResultsStore';
 import { useRouter } from 'next/navigation';
+import { createParticipation } from '@/api/participation';
+import useAuthStore from '@/store/use-auth-store';
 
 interface QuestTasksProps {
   questId: string;
-  data: Task[]; // Tasks from your backend
+  data: Task[];
   startTime: Date;
   durationMinutes: number;
 }
 
-/** Helper to check if two sets have the same members */
+interface Participation {
+  userId: string;
+  questId: string;
+  points: number;
+  timeSpent: number;
+  correctAnswers: number;
+}
+
 function sameSets(a: Set<string>, b: Set<string>) {
   if (a.size !== b.size) return false;
   for (const val of a) {
@@ -40,18 +46,16 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
 }) => {
   const [remainingTime, setRemainingTime] = useState(durationMinutes * 60);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-
-  // Pull user answers from Zustand
   const { results, setResult } = useResultStore();
+  const { user } = useAuthStore();
+  const userId = user?.id;
 
-  // 1) On mount, set tasks from the backend
   useEffect(() => {
     setTasks(data);
-    console.log('Tasks from backend:', data);
   }, [data]);
 
-  // 2) Basic Timer
   useEffect(() => {
     const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
     const timer = setInterval(() => {
@@ -67,116 +71,97 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
     return () => clearInterval(timer);
   }, [startTime, durationMinutes]);
 
-  // 3) Calculate Progress
   const completedTasks = tasks.filter((task) => task.completed).length;
   const totalTasks = tasks.length;
   const progressPercentage =
     totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
   const isCompletedQuest = completedTasks === totalTasks;
-  const questHref = Routes.QUEST.replace('[id]', questId);
 
-  // 4) Called from the modal: "Submit Answer" => store the user answer
   const handleSubmit = (taskId: string | number, answer: any) => {
-    const taskIdStr = String(taskId); // ensure string if your tasks have a string ID
-    console.log('Submitted answer:', { taskId: taskIdStr, answer });
-
-    // Mark local task as completed
+    const taskIdStr = String(taskId);
     setTasks((prev) =>
       prev.map((t) => (t.id === taskIdStr ? { ...t, completed: true } : t)),
     );
-
-    // Save user answer in Zustand
     setResult(taskIdStr, answer);
-
-    // Check the updated store in console
-    console.log('Zustand results now:', useResultStore.getState().results);
-    // router.push(questHref);
   };
 
-  /**
-   * 5) On "Complete Quest" => For each task, check user answer vs. correct answer
-   */
-  const handleCompleteQuest = () => {
+  const evaluateTaskResults = () => {
+    let correctCount = 0;
+
     tasks.forEach((task) => {
-      const userAnswer = results[task.id]; // could be variant ID(s) or text
+      const userAnswer = results[task.id];
+      let isCorrect = false;
 
-      // If no answer, automatically "Incorrect"
-      if (!userAnswer) {
-        console.log(`Task "${task.title}" => No answer => Incorrect!`);
-        return;
-      }
+      if (!userAnswer) return;
 
-      // Evaluate correctness based on task.type
       switch (task.type) {
         case 'SINGLE': {
-          // userAnswer is e.g. "1660fd0e-0af5-4d25-a53c-4e6fc7163464"
-          // We find the variant in task.variants
           const chosenVariant = task.variants?.find((v) => v.id === userAnswer);
-          if (chosenVariant?.isCorrect) {
-            console.log(`Task "${task.title}" => Correct (SINGLE)!`);
-          } else {
-            console.log(`Task "${task.title}" => Incorrect (SINGLE)!`);
-          }
+          isCorrect = chosenVariant?.isCorrect ?? false;
           break;
         }
-
         case 'MULTIPLE': {
-          // userAnswer is an array of variant IDs
-          // We'll compare sets: the set of correct variant IDs vs. user's chosen IDs
           const correctIds = task.variants
             .filter((v) => v.isCorrect)
             .map((v) => v.id);
           const userIds = Array.isArray(userAnswer) ? userAnswer : [];
-
-          if (sameSets(new Set(correctIds), new Set(userIds))) {
-            console.log(`Task "${task.title}" => Correct (MULTIPLE)!`);
-          } else {
-            console.log(`Task "${task.title}" => Incorrect (MULTIPLE)!`);
-          }
+          isCorrect = sameSets(new Set(correctIds), new Set(userIds));
           break;
         }
-
         case 'OPEN': {
-          // userAnswer is typed text
-          // For simplicity, let's assume there's exactly one variant with isCorrect = true
-          // and its content must match the userAnswer
           const correctVariant = task.variants?.find((v) => v.isCorrect);
-
-          if (correctVariant && correctVariant.content === userAnswer) {
-            console.log(`Task "${task.title}" => Correct (OPEN)!`);
-          } else {
-            console.log(`Task "${task.title}" => Incorrect (OPEN)!`);
-          }
+          isCorrect = correctVariant?.content === userAnswer;
           break;
         }
-
         case 'IMAGE':
         case 'MAP': {
-          // userAnswer might be { x, y }
-          // Suppose the correct coordinate is stored in coordinate.x, coordinate.y, etc.
-          // We'll do a simple distance check or exact match
-          if (!task.coordinate) {
-            console.log(`Task "${task.title}" => No coordinate => Can't check`);
-            return;
-          }
-
-          // Example: treat userAnswer coords == coordinate.x,y as "correct"
+          if (!task.coordinate) return;
           const { x, y } = userAnswer || {};
-          if (x === task.coordinate.x && y === task.coordinate.y) {
-            console.log(`Task "${task.title}" => Correct (MAP/IMAGE)!`);
-          } else {
-            console.log(`Task "${task.title}" => Incorrect (MAP/IMAGE)!`);
-          }
+          isCorrect = x === task.coordinate.x && y === task.coordinate.y;
           break;
         }
+      }
 
-        default:
-          console.log(`Task "${task.title}" => Unknown type => Can't check`);
+      if (isCorrect) {
+        correctCount++;
       }
     });
 
-    // Then optionally, navigate or do something else
-    console.log('Done checking all tasks!');
+    return correctCount;
+  };
+
+  const handleCompleteQuest = async () => {
+    try {
+      setIsSubmitting(true);
+
+      // Calculate time spent in seconds
+      const endTime = new Date();
+      const timeSpent = Math.floor(
+        (endTime.getTime() - startTime.getTime()) / 1000,
+      );
+
+      // Calculate correct answers and points
+      const correctAnswers = evaluateTaskResults();
+      const points = correctAnswers * 10; // Assuming each correct answer is worth 10 points
+
+      const participationData: Participation = {
+        userId,
+        questId,
+        points,
+        timeSpent,
+        correctAnswers,
+      };
+      await createParticipation(participationData);
+
+    
+
+      router.push(Routes.QUEST.replace('[id]', questId));
+    } catch (error) {
+  
+      console.error('Failed to submit participation:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -213,13 +198,10 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
             const isDisabled = !isCompleted ? !isPreviousCompleted : true;
 
             return (
-              // Use key={task.id}, the UUID from backend
               <div key={task.id} className="grid place-items-center gap-y-2">
-                {/* Pass the string-based ID to the modal */}
                 <QuestTaskModal
                   task={{
                     ...task,
-                    // If your modal expects a numeric ID, convert or unify
                     id: task.id,
                   }}
                   onSubmit={handleSubmit}
@@ -257,9 +239,10 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
           {isCompletedQuest ? (
             <Button
               onClick={handleCompleteQuest}
+              disabled={isSubmitting}
               className={cn(buttonVariants({ size: 'lg' }), 'font-semibold')}
             >
-              Complete Quest
+              {isSubmitting ? 'Submitting...' : 'Complete Quest'}
             </Button>
           ) : null}
         </div>

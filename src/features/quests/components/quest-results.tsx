@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useEffect } from 'react';
-import { createParticipation, getParticipation } from '@/api/participation';
+import {  getParticipation } from '@/api/participation';
 import useAuthStore from '@/store/use-auth-store';
 import { toast } from 'sonner';
 
@@ -34,6 +34,7 @@ const QuestResults = ({ questId }: QuestResultsProps) => {
   const fetchParticipations = async () => {
     if (!user?.id) return;
     try {
+      const res = await getParticipation(questId);
       const res = await getParticipation(questId);
       console.log(res);
     } catch (e) {
