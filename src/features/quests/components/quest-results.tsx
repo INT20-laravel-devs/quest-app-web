@@ -35,7 +35,6 @@ const QuestResults = ({ questId }: QuestResultsProps) => {
     if (!user?.id) return;
     try {
       const res = await getParticipation(questId);
-      const res = await getParticipation(questId);
       console.log(res);
     } catch (e) {
       if (e instanceof Error) {
