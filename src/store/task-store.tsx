@@ -1,10 +1,9 @@
-'use client'; // If you're using Next.js App Router
+'use client';
 
-import { create } from 'zustand/react';
+import { create } from 'zustand';
 
 /** Define store-related types */
 
-// The type used in the store for each task:
 export interface Variant {
   id: string;
   taskId: string;
@@ -36,33 +35,21 @@ export interface Task {
   coordinate: Coordinate | null;
 }
 
-/**
- * The store also tracks a `results` object mapping
- * task IDs -> user answer (any type).
- */
 interface TaskState {
   tasks: Task[];
-  results: Record<string, any>; // store answers keyed by task ID
-
-  // Actions
+  results: Record<string, unknown>;
   setTasks: (tasks: Task[]) => void;
-  setResult: (taskId: string, answer: any) => void;
+  setResult: (taskId: string, answer: unknown) => void;
 }
 
 export const useTaskStore = create<TaskState>((set) => ({
-  // Initial state
   tasks: [],
   results: {},
 
-  // Set the array of tasks
-  setTasks: (tasks) => set(() => ({ tasks })),
+  setTasks: (tasks) => set({ tasks }),
 
-  // Save the user's answer for a particular task
   setResult: (taskId, answer) =>
     set((state) => ({
-      results: {
-        ...state.results,
-        [taskId]: answer,
-      },
+      results: { ...state.results, [taskId]: answer },
     })),
 }));

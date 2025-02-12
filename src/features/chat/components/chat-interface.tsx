@@ -27,9 +27,8 @@ export function ChatInterface() {
     socket.on('connect', (data) => {
       console.log(data);
     });
-
-    socket.on('message', (message: Message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+    socket.on('message', (message) => {
+      setMessages((prevMessages) => [...prevMessages, message as Message]);
     });
   }, []);
 

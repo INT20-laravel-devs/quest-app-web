@@ -120,7 +120,7 @@ const QuestTasks = ({
   const isCompletedQuest = completedTasks === totalTasks;
   const questHref = Routes.QUEST.replace('[id]', questId);
 
-  const handleSubmit = (taskId: number, answer: any) => {
+  const handleSubmit = (taskId: number, answer: unknown) => {
     console.log('Submitted answer for task', taskId, ':', answer);
     setTasks(
       tasks.map((task) =>

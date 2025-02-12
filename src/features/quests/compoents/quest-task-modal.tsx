@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, ReactElement, MouseEvent } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -26,10 +26,12 @@ export interface Task {
   completed: boolean;
 }
 
+type TaskAnswer = string | string[] | { x: number; y: number } | null;
+
 interface QuestTaskModalProps {
   task: Task;
-  onSubmit: (taskId: number, answer: any) => void;
-  children: React.ReactNode;
+  onSubmit: (taskId: number, answer: TaskAnswer) => void;
+  children: ReactElement;
 }
 
 const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
@@ -38,20 +40,20 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [answer, setAnswer] = useState<any>(null);
+  const [answer, setAnswer] = useState<TaskAnswer>(null);
   const [imagePoint, setImagePoint] = useState<{ x: number; y: number } | null>(
     null,
   );
-  const [remainingTime, setRemainingTime] = useState(task.timeLimit);
+  const [remainingTime] = useState(task.timeLimit);
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
 
-  const handleAnswer = (value: any) => {
+  const handleAnswer = (value: TaskAnswer) => {
     setAnswer(value);
   };
 
-  const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleImageClick = (e: MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = Math.round(e.clientX - rect.left);
     const y = Math.round(e.clientY - rect.top);
@@ -63,7 +65,10 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
     switch (task.type) {
       case 'single':
         return (
-          <RadioGroup onValueChange={handleAnswer} className="space-y-3">
+          <RadioGroup
+            onValueChange={(val) => handleAnswer(val)}
+            className="space-y-3"
+          >
             {task.options?.map((option) => (
               <div
                 key={option}
@@ -87,12 +92,14 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
                 <Checkbox
                   id={option}
                   onCheckedChange={(checked) => {
-                    const newAnswer = answer || [];
+                    // Safely handle array answers
+                    if (checked === 'indeterminate') return;
+                    const currentAnswer = Array.isArray(answer) ? answer : [];
                     if (checked) {
-                      handleAnswer([...newAnswer, option]);
+                      handleAnswer([...currentAnswer, option]);
                     } else {
                       handleAnswer(
-                        newAnswer.filter((item: string) => item !== option),
+                        currentAnswer.filter((item) => item !== option),
                       );
                     }
                   }}
@@ -159,7 +166,7 @@ const QuestTaskModal: React.FC<QuestTaskModalProps> = ({
 
   return (
     <>
-      {React.cloneElement(children as React.ReactElement, {
+      {React.cloneElement(children, {
         onClick: handleOpen,
       })}
       <Dialog open={isOpen} onOpenChange={handleClose}>

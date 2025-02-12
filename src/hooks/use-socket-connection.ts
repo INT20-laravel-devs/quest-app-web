@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { env } from '@/config/env';
 
-const useWebSocketConnection = (cb: (arg: unknown) => void, event: any) => {
+const useWebSocketConnection = (cb: (arg: unknown) => void, event: unknown) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const socketRef = useRef<any>(null);
 

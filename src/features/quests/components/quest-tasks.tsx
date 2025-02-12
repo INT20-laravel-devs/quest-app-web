@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -7,17 +8,31 @@ import { Lock } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Routes } from '@/constants/routes';
 import { cn } from '@/utils/styles-utils';
-import QuestTaskModal, {
-  Task,
-} from '@/features/quests/components/quest-task-modal';
+import QuestTaskModal, { ModalTask } from '@/features/quests/components/quest-task-modal';
 import { useResultStore } from '@/store/useResultsStore';
 import { useRouter } from 'next/navigation';
 import { createParticipation } from '@/api/participation';
 import useAuthStore from '@/store/use-auth-store';
 
+interface QuestTask {
+  id: number;
+  title: string;
+  completed: boolean;
+  type: 'SINGLE' | 'MULTIPLE' | 'OPEN' | 'IMAGE' | 'MAP';
+  variants?: {
+    id: number | string;
+    isCorrect: boolean;
+    content: string;
+  }[];
+  coordinate?: {
+    x: number;
+    y: number;
+  };
+}
+
 interface QuestTasksProps {
   questId: string;
-  data: Task[];
+  data: unknown;
   startTime: Date;
   durationMinutes: number;
 }
@@ -30,12 +45,9 @@ interface Participation {
   correctAnswers: number;
 }
 
-function sameSets(a: Set<string>, b: Set<string>) {
+function sameSets(a: Set<string | number>, b: Set<string | number>) {
   if (a.size !== b.size) return false;
-  for (const val of a) {
-    if (!b.has(val)) return false;
-  }
-  return true;
+  return Array.from(a).every((val) => b.has(val));
 }
 
 const QuestTasks: React.FC<QuestTasksProps> = ({
@@ -45,7 +57,7 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
   durationMinutes,
 }) => {
   const [remainingTime, setRemainingTime] = useState(durationMinutes * 60);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<QuestTask[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { results, setResult } = useResultStore();
@@ -53,7 +65,7 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
   const userId = user?.id;
 
   useEffect(() => {
-    setTasks(data);
+    setTasks(data as QuestTask[]);
   }, [data]);
 
   useEffect(() => {
@@ -67,7 +79,6 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
       setRemainingTime(timeLeft);
       if (timeLeft === 0) clearInterval(timer);
     }, 1000);
-
     return () => clearInterval(timer);
   }, [startTime, durationMinutes]);
 
@@ -77,35 +88,35 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
     totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
   const isCompletedQuest = completedTasks === totalTasks;
 
-  const handleSubmit = (taskId: string | number, answer: any) => {
-    const taskIdStr = String(taskId);
+  const handleSubmit = (taskId: number, answer: unknown) => {
     setTasks((prev) =>
-      prev.map((t) => (t.id === taskIdStr ? { ...t, completed: true } : t)),
+      prev.map((t) => (t.id === taskId ? { ...t, completed: true } : t)),
     );
-    setResult(taskIdStr, answer);
+    setResult(String(taskId), answer as any);
   };
 
   const evaluateTaskResults = () => {
     let correctCount = 0;
-
     tasks.forEach((task) => {
-      const userAnswer = results[task.id];
-      let isCorrect = false;
-
+      const userAnswer = results[String(task.id)];
       if (!userAnswer) return;
-
+      let isCorrect = false;
       switch (task.type) {
         case 'SINGLE': {
-          const chosenVariant = task.variants?.find((v) => v.id === userAnswer);
+          const chosenVariant = task.variants?.find(
+            (v) => String(v.id) === String(userAnswer),
+          );
           isCorrect = chosenVariant?.isCorrect ?? false;
           break;
         }
         case 'MULTIPLE': {
           const correctIds = task.variants
-            .filter((v) => v.isCorrect)
+            ?.filter((v) => v.isCorrect)
             .map((v) => v.id);
-          const userIds = Array.isArray(userAnswer) ? userAnswer : [];
-          isCorrect = sameSets(new Set(correctIds), new Set(userIds));
+          const userIds = Array.isArray(userAnswer) ? userAnswer.map(String) : [];
+          if (correctIds) {
+            isCorrect = sameSets(new Set(correctIds), new Set(userIds));
+          }
           break;
         }
         case 'OPEN': {
@@ -116,34 +127,28 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
         case 'IMAGE':
         case 'MAP': {
           if (!task.coordinate) return;
-          const { x, y } = userAnswer || {};
+          const { x, y } = (userAnswer as { x: number; y: number }) || {};
           isCorrect = x === task.coordinate.x && y === task.coordinate.y;
           break;
         }
       }
-
-      if (isCorrect) {
-        correctCount++;
-      }
+      if (isCorrect) correctCount++;
     });
-
     return correctCount;
   };
 
   const handleCompleteQuest = async () => {
     try {
       setIsSubmitting(true);
-
-      // Calculate time spent in seconds
+      if (!userId) {
+        throw new Error('User must be logged in to submit participation.');
+      }
       const endTime = new Date();
       const timeSpent = Math.floor(
         (endTime.getTime() - startTime.getTime()) / 1000,
       );
-
-      // Calculate correct answers and points
       const correctAnswers = evaluateTaskResults();
-      const points = correctAnswers * 10; // Assuming each correct answer is worth 10 points
-
+      const points = correctAnswers * 10;
       const participationData: Participation = {
         userId,
         questId,
@@ -152,7 +157,6 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
         correctAnswers,
       };
       await createParticipation(participationData);
-
       router.push(Routes.QUEST.replace('[id]', questId));
     } catch (error) {
       console.error('Failed to submit participation:', error);
@@ -168,12 +172,9 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
           <h2 className="text-2xl font-bold">Quest Tasks</h2>
           <span className="text-muted-foreground font-semibold">
             Timer: {Math.floor(remainingTime / 60)}:
-            {remainingTime % 60 < 10
-              ? `0${remainingTime % 60}`
-              : remainingTime % 60}
+            {(remainingTime % 60).toString().padStart(2, '0')}
           </span>
         </div>
-
         <div className="flex justify-between items-center mt-2">
           <span className="text-muted-foreground">
             Progress: {progressPercentage.toFixed(0)}%
@@ -182,25 +183,19 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
             {completedTasks}/{totalTasks} tasks completed
           </span>
         </div>
-
         <div className="w-full bg-muted rounded-full h-2 mt-2">
           <Progress value={progressPercentage} />
         </div>
-
         <div className="flex flex-wrap justify-center gap-x-20 gap-y-6 mt-10">
           {tasks.map((task, index) => {
             const isCompleted = task.completed;
             const isPreviousCompleted =
               index === 0 || tasks[index - 1]?.completed;
-            const isDisabled = !isCompleted ? !isPreviousCompleted : true;
-
+            const isDisabled = !isCompleted && !isPreviousCompleted;
             return (
               <div key={task.id} className="grid place-items-center gap-y-2">
                 <QuestTaskModal
-                  task={{
-                    ...task,
-                    id: task.id,
-                  }}
+                  task={task as ModalTask}
                   onSubmit={handleSubmit}
                 >
                   <Button
@@ -223,17 +218,14 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
                   </Button>
                 </QuestTaskModal>
                 <span className="text-center text-sm font-medium">
-                  {!task.completed && !isPreviousCompleted
-                    ? 'Locked'
-                    : task.title}
+                  {isDisabled ? 'Locked' : task.title}
                 </span>
               </div>
             );
           })}
         </div>
-
         <div className="flex justify-end mt-6">
-          {isCompletedQuest ? (
+          {isCompletedQuest && (
             <Button
               onClick={handleCompleteQuest}
               disabled={isSubmitting}
@@ -241,7 +233,7 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
             >
               {isSubmitting ? 'Submitting...' : 'Complete Quest'}
             </Button>
-          ) : null}
+          )}
         </div>
       </CardContent>
     </Card>

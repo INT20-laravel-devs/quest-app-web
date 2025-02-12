@@ -1,7 +1,6 @@
 'use client';
 
 import GradientHeading from '@/components/common/gradient-heading';
-import Table from '@/components/common/table';
 import { Button } from '@/components/ui/button';
 import { Routes } from '@/constants/routes';
 import { useRouter } from 'next/navigation';
