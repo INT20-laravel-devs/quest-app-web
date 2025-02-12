@@ -28,6 +28,7 @@ const LoginForm = ({
     try {
       await signIn(data);
       replace(Routes.PROFILE);
+      window.location.reload();
       toast.success('Logged in successfully!');
     } catch (e) {
       if (e instanceof Error) {
