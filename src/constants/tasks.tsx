@@ -42,7 +42,7 @@ export const taskTypes = [
     icon: ImageIcon,
   },
   {
-    type: TaskType.IMAGE,
+    type: TaskType.LOCATION,
     title: 'Geolocation',
     description: 'Select object on image',
     icon: MapPin,

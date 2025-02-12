@@ -78,6 +78,24 @@ export const getQuests = async () => {
   }
 };
 
+export const deleteTask = async (taskId: string) => {
+  try {
+    const response = await fetch(`${API_URL}/tasks/${taskId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message);
+    }
+
+    return response;
+  } catch (e) {
+    throw e;
+  }
+};
+
 export const publishQuest = async (questId: string) => {
   try {
     const response = await fetch(`${API_URL}/quest`, {

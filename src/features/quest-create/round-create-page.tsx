@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { CreateTaskBody } from '@/types/quests';
 import { PlusCircle } from 'lucide-react';
 import TaskCreatorDialog from '@/features/quest-create/components/task-create-dialog';
@@ -9,12 +9,8 @@ import TaskList from '@/features/quest-create/components/task-list';
 import Header from '@/features/quest-create/components/header';
 import FormStepper from '@/features/quests/components/form-stepper';
 import { getTasks } from '@/api/quests';
-
-
-export interface RoundTypeProps {
-  formData: any;
-  setFormData: any;
-}
+import Link from 'next/link';
+import { Routes } from '@/constants/routes';
 
 export interface RoundCreatePageProps {
   questId: string;
@@ -30,13 +26,15 @@ const RoundCreatePage = ({ questId }: RoundCreatePageProps) => {
   };
 
   const fetchTasks = async () => {
-    const res = await getTasks(questId);    
+    const res = await getTasks(questId);
     setTasks(res);
   };
 
   useEffect(() => {
     fetchTasks();
   }, [questId]);
+
+  const publishHref = Routes.QUEST_PUBLISH.replace('[id]', questId);
 
   return (
     <div className="min-h-screen py-10 px-4 container">
@@ -50,9 +48,12 @@ const RoundCreatePage = ({ questId }: RoundCreatePageProps) => {
         </Button>
         <div className="max-w-5xl mx-auto">
           <div className="rounded-xl border bg-background/50 backdrop-blur-sm p-6">
-            <TaskList tasks={tasks} />
+            <TaskList tasks={tasks} setTasks={setTasks} />
           </div>
         </div>
+        <Link href={publishHref} className={buttonVariants()}>
+          Next step
+        </Link>
       </div>
 
       <TaskCreatorDialog

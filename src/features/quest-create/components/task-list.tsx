@@ -2,15 +2,22 @@ import { type CreateTaskBody, TaskType } from '@/types/quests';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { taskTypes } from '@/constants/tasks';
+import { deleteTask } from '@/api/quests';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Trash } from 'lucide-react';
+import { useState } from 'react';
 
 interface TaskListProps {
   tasks: CreateTaskBody[];
+  setTasks: (tasks: CreateTaskBody[]) => void;
 }
 
 const getTaskTypeContent = (type: TaskType) =>
   taskTypes.find((t) => t.type === type);
 
-export default function TaskList({ tasks }: TaskListProps) {
+export default function TaskList({ tasks, setTasks }: TaskListProps) {
+  const [isLoading, setIsLoading] = useState(false);
   if (!tasks || tasks?.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -18,6 +25,19 @@ export default function TaskList({ tasks }: TaskListProps) {
       </div>
     );
   }
+
+  const handleDelete = async (id: string) => {
+    try {
+      setIsLoading(true);
+      await deleteTask(id);
+      setTasks(tasks.filter((task) => task.id !== id));
+      toast.success('Task deleted successfully');
+    } catch (e) {
+      if (e instanceof Error) toast.error(e.message);
+      console.error(e);
+    }
+    setIsLoading(false);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -103,6 +123,22 @@ export default function TaskList({ tasks }: TaskListProps) {
                   </p>
                 </div>
               )}
+              {task.type === TaskType.LOCATION && task.coordinate && (
+                <div className="w-full">
+                  <p className="text-sm font-medium">Location:</p>
+                  <p className="text-sm text-green-600">
+                    {task.coordinate.x}, {task.coordinate.y}
+                  </p>
+                </div>
+              )}
+              <Button
+                disabled={isLoading}
+                variant="destructive"
+                size="icon"
+                onClick={() => handleDelete(task.id)}
+              >
+                <Trash size={16} />
+              </Button>
             </CardFooter>
           </Card>
         );

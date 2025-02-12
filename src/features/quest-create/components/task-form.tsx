@@ -22,8 +22,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import ReactCrop, { Crop } from 'react-image-crop';
+import ReactCrop, { type Crop } from 'react-image-crop';
 import { createTask } from '@/api/quests';
+import dynamic from 'next/dynamic';
+
+const LocationPicker = dynamic(() => import('@/components/location-picker'), {
+  ssr: false,
+});
 
 const variantSchema = z.object({
   content: z.string().min(1, 'Variant content is required'),
@@ -31,10 +36,10 @@ const variantSchema = z.object({
 });
 
 const coordinateSchema = z.object({
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
-  endX: z.number().min(0).max(1),
-  endY: z.number().min(0).max(1),
+  x: z.number(),
+  y: z.number(),
+  endX: z.number().min(0).max(1).optional(),
+  endY: z.number().min(0).max(1).optional(),
 });
 
 const taskSchema = z
@@ -105,7 +110,9 @@ export default function TaskForm({
       coordinate:
         initialType === TaskType.IMAGE
           ? { x: 0, y: 0, endX: 0, endY: 0 }
-          : undefined,
+          : initialType === TaskType.LOCATION
+            ? { x: 51.505, y: -0.09 }
+            : undefined,
     },
   });
 
@@ -140,8 +147,8 @@ export default function TaskForm({
   const handleCropChange = (newCrop: Crop) => {
     setCrop(newCrop);
     form.setValue('coordinate', {
-      x: newCrop.x / 100,
-      y: newCrop.y / 100,
+      x: newCrop.y / 100,
+      y: newCrop.x / 100,
       endX: (newCrop.x + newCrop.width) / 100,
       endY: (newCrop.y + newCrop.height) / 100,
     });
@@ -165,8 +172,6 @@ export default function TaskForm({
       order: 1,
       ...data,
     };
-
-    console.log(imageFile);
 
     formData.append('createTask', JSON.stringify(createTaskBody));
 
@@ -209,7 +214,7 @@ export default function TaskForm({
           <RadioGroup
             value={fields.findIndex((v) => v.isCorrect)?.toString() || '0'}
             onValueChange={(value) => {
-              const index = parseInt(value, 10);
+              const index = Number.parseInt(value, 10);
               form.setValue(
                 'variant',
                 fields.map((v, i) => ({
@@ -314,6 +319,30 @@ export default function TaskForm({
     }
   };
 
+  const renderLocationPicker = () => {
+    if (initialType === TaskType.LOCATION) {
+      return (
+        <FormField
+          control={form.control}
+          name="coordinate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Location</FormLabel>
+              <FormControl>
+                {typeof window !== 'undefined' && (
+                  <LocationPicker
+                    onChange={(x, y) => field.onChange({ x, y })}
+                  />
+                )}
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      );
+    }
+  };
+
   return (
     <ScrollArea className="max-h-[60vh]">
       <Form {...form}>
@@ -379,6 +408,7 @@ export default function TaskForm({
           />
 
           {renderVariantFields()}
+          {renderLocationPicker()}
 
           {initialType === TaskType.IMAGE && (
             <div className="space-y-2">
@@ -395,7 +425,7 @@ export default function TaskForm({
                     onChange={(_, percentCrop) => handleCropChange(percentCrop)}
                   >
                     <img
-                      src={imageUrl}
+                      src={imageUrl || '/placeholder.svg'}
                       alt="Selected"
                       className="max-w-full h-auto"
                     />

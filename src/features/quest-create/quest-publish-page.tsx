@@ -12,17 +12,26 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { Routes } from '@/constants/routes';
 import type { CreateTaskBody } from '@/types/quests';
+import { useEffect, useState } from 'react';
 
 interface QuestPublishPageProps {
   questId: string;
 }
 
 const QuestPublishPage = ({ questId }: QuestPublishPageProps) => {
+  const [tasks, setTasks] = useState<CreateTaskBody[]>([]);
   const { replace } = useRouter();
+
   const { data, isLoading } = useQuery({
-    queryKey: ['quest', questId],
+    queryKey: ['tasks', questId],
     queryFn: () => getTasks(questId),
   });
+
+  useEffect(() => {
+    if (data && !isLoading && !tasks.length) {
+      setTasks(data as CreateTaskBody[]);
+    }
+  }, [data, isLoading, tasks]);
 
   const handlePublish = async () => {
     try {
@@ -46,7 +55,7 @@ const QuestPublishPage = ({ questId }: QuestPublishPageProps) => {
       <Card className="max-w-6xl p-6 mx-auto space-y-3">
         <QuestDashboard questId={questId} />
         <h3 className="text-xl pt-3 font-semibold">Quest tasks</h3>
-        <TaskList tasks={data as CreateTaskBody[]} />
+        <TaskList tasks={tasks as CreateTaskBody[]} setTasks={setTasks} />
         <Button onClick={handlePublish} className="self-end">
           Publish
         </Button>
