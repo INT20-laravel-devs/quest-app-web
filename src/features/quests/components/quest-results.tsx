@@ -8,9 +8,12 @@ import { createParticipation, getParticipation } from '@/api/participation';
 import useAuthStore from '@/store/use-auth-store';
 import { toast } from 'sonner';
 
-const QuestResults = () => {
+interface QuestResultsProps {
+  questId: string;
+}
+
+const QuestResults = ({ questId }: QuestResultsProps) => {
   const user = useAuthStore((state) => state.user);
-  console.log(user);
   const results = {
     score: 850,
     maxScore: 1000,
@@ -31,9 +34,7 @@ const QuestResults = () => {
   const fetchParticipations = async () => {
     if (!user?.id) return;
     try {
-      const res = await getParticipation(
-        '1d2a0096-6511-47b5-a6b2-764bf5afb9f6',
-      );
+      const res = await getParticipation(questId);
       console.log(res);
     } catch (e) {
       if (e instanceof Error) {

@@ -10,7 +10,7 @@ interface QuestProps {
 const Quest = ({ params }: QuestProps) => {
   return (
     <div className="space-y-6">
-      <QuestResults />
+      <QuestResults questId={params.questId} />
       <QuestReviews questId={params.questId} />
     </div>
   );

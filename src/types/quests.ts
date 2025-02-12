@@ -11,6 +11,7 @@ export type CreateQuestBody = z.infer<typeof createQuestSchema>;
 export interface Quest extends CreateQuestBody {
   id: string;
   ownerId: string;
+  isApproved: boolean;
 }
 
 export enum TaskType {
@@ -46,4 +47,16 @@ export interface CreateTaskBody {
 
 export interface TaskBody extends CreateTaskBody {
   imageLink?: string;
+}
+
+export interface QuestBody {
+  id: string;
+  ownerId: string;
+  title: string;
+  description: string;
+  timeLimit: number;
+  grade: number;
+  isApproved: boolean;
+  isPublished: boolean;
+  taskCount: number;
 }

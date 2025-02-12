@@ -1,5 +1,10 @@
 import { API_URL } from '@/api/constant';
-import { CreateQuestBody, CreateTaskBody, Quest } from '@/types/quests';
+import {
+  CreateQuestBody,
+  CreateTaskBody,
+  Quest,
+  QuestBody,
+} from '@/types/quests';
 
 export const createQuest = async (data: CreateQuestBody) => {
   try {
@@ -72,7 +77,7 @@ export const getQuests = async () => {
       throw new Error(error.message);
     }
 
-    return (await response.json()) as Quest[];
+    return (await response.json()) as QuestBody[];
   } catch (e) {
     throw e;
   }
@@ -116,6 +121,24 @@ export const publishQuest = async (questId: string) => {
     }
 
     return response;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const getQuest = async (questId: string) => {
+  try {
+    const response = await fetch(`${API_URL}/quest/${questId}`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message);
+    }
+
+    return (await response.json()) as QuestBody;
   } catch (e) {
     throw e;
   }
