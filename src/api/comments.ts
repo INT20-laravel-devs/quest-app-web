@@ -1,5 +1,5 @@
 import { API_URL } from '@/api/constant';
-import { CommentsRequest, CommentsResponse } from '@/types/comments';
+import { CommentsRequest, Comment } from '@/types/comments';
 
 export const createComment = async (data: CommentsRequest) => {
   try {
@@ -17,7 +17,7 @@ export const createComment = async (data: CommentsRequest) => {
       throw new Error(error.message);
     }
 
-    return (await response.json()) as CommentsResponse;
+    return (await response.json()) as Comment;
   } catch (e) {
     throw e;
   }
@@ -35,7 +35,7 @@ export const getComments = async (questId: string) => {
       throw new Error(error.message);
     }
 
-    return (await response.json()) as CommentsResponse[];
+    return (await response.json()) as Comment[];
   } catch (e) {
     throw e;
   }

@@ -5,7 +5,7 @@ export interface CommentsRequest {
   grade: number;
 }
 
-export interface CommentsResponse {
+export interface Comment {
   id: string;
   userId: string;
   questId: string;

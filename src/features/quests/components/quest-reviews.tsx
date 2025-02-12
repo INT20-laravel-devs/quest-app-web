@@ -6,7 +6,7 @@ import QuestReviewsForm from '@/features/quests/components/quest-reviews-form';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getComments } from '@/api/comments';
-import { CommentsResponse } from '@/types/comments';
+import { Comment } from '@/types/comments';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import useAuthStore from '@/store/use-auth-store';
 
@@ -16,7 +16,7 @@ interface QuestReviewsProps {
 
 const QuestReviews = ({ questId }: QuestReviewsProps) => {
   const user = useAuthStore((state) => state.user);
-  const [reviews, setReviews] = useState<CommentsResponse[]>([]);
+  const [reviews, setReviews] = useState<Comment[]>([]);
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['questReviews', questId],

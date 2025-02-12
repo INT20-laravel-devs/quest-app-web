@@ -7,7 +7,7 @@ import useAuthStore from '@/store/use-auth-store';
 import { createComment } from '@/api/comments';
 import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CommentsResponse } from '@/types/comments';
+import { Comment } from '@/types/comments';
 
 const commentSchema = z.object({
   grade: z.number().int().min(1).max(5),
@@ -18,8 +18,8 @@ type FormValues = z.infer<typeof commentSchema>;
 
 interface QuestReviewsFormProps {
   questId: string;
-  reviews: CommentsResponse[];
-  setReviews: React.Dispatch<React.SetStateAction<CommentsResponse[]>>;
+  reviews: Comment[];
+  setReviews: React.Dispatch<React.SetStateAction<Comment[]>>;
 }
 
 const QuestReviewsForm = ({
