@@ -1,7 +1,5 @@
-import QuestDashboard from '@/features/quests/compoents/quest-dashboard';
-import QuestReviews from '@/features/quests/compoents/quest-reviews';
-import QuestResults from '@/features/quests/compoents/quest-results';
-import QuestTasks from '@/features/quests/compoents/quest-tasks';
+import QuestReviews from '@/features/quests/components/quest-reviews';
+import QuestResults from '@/features/quests/components/quest-results';
 
 interface QuestProps {
   params: {
@@ -10,12 +8,10 @@ interface QuestProps {
 }
 
 const Quest = ({ params }: QuestProps) => {
-  const { questId } = params;
-
   return (
-    <div>
-      <QuestResults />
-      <QuestReviews />
+    <div className="space-y-6">
+      <QuestResults questId={params.questId} />
+      <QuestReviews questId={params.questId} />
     </div>
   );
 };
