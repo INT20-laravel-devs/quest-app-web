@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 
 import {
@@ -13,19 +15,20 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { BrainCircuit } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 const data = {
   navMain: [
     {
-      title: '',
-      url: '#',
+      title: 'Getting Started',
+      url: '/admin/quests',
       items: [
         {
-          title: 'Installation',
-          url: '#',
+          title: 'Users',
+          url: '/admin/users',
         },
         {
-          title: 'Project Structure',
-          url: '#',
+          title: 'Quests',
+          url: '/admin/quests',
         },
       ],
     },
@@ -33,6 +36,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -58,7 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenu>
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
+                    <SidebarMenuButton asChild isActive={item.url === pathname}>
                       <a href={item.url}>{item.title}</a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useActionState, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
@@ -153,11 +153,8 @@ const QuestTasks: React.FC<QuestTasksProps> = ({
       };
       await createParticipation(participationData);
 
-    
-
       router.push(Routes.QUEST.replace('[id]', questId));
     } catch (error) {
-  
       console.error('Failed to submit participation:', error);
     } finally {
       setIsSubmitting(false);
