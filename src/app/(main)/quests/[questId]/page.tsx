@@ -1,5 +1,5 @@
-import QuestReviews from '@/features/quests/compoents/quest-reviews';
-import QuestResults from '@/features/quests/compoents/quest-results';
+import QuestReviews from '@/features/quests/components/quest-reviews';
+import QuestResults from '@/features/quests/components/quest-results';
 
 interface QuestProps {
   params: {

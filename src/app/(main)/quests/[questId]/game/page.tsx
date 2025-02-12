@@ -1,13 +1,11 @@
 import { getTasks } from '@/api/quests';
-import QuestTasks from '@/features/quests/compoents/quest-tasks';
+import QuestTasks from '@/features/quests/components/quest-tasks';
 
 interface QuestGameProps {
   params: {
     questId: string;
   };
 }
-
-
 
 const QuestGame = async ({ params }: QuestGameProps) => {
   const data = await getTasks(params.questId);

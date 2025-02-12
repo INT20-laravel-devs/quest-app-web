@@ -3,7 +3,7 @@
 import Header from '@/features/quest-create/components/header';
 import FormStepper from '@/features/quests/components/form-stepper';
 import { getTasks, publishQuest } from '@/api/quests';
-import QuestDashboard from '@/features/quests/compoents/quest-dashboard';
+import QuestDashboard from '@/features/quests/components/quest-dashboard';
 import { useQuery } from '@tanstack/react-query';
 import TaskList from '@/features/quest-create/components/task-list';
 import { Card } from '@/components/ui/card';

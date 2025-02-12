@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import QuestDashboard from '@/features/quests/compoents/quest-dashboard';
+import QuestDashboard from '@/features/quests/components/quest-dashboard';
 
 interface QuestLayoutProps extends PropsWithChildren {
   params: {

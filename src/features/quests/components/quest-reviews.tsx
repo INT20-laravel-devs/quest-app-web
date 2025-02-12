@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageSquare, Star, UserRound } from 'lucide-react';
-import QuestReviewsForm from '@/features/quests/compoents/quest-reviews-form';
+import QuestReviewsForm from '@/features/quests/components/quest-reviews-form';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getComments } from '@/api/comments';

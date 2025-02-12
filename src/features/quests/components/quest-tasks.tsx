@@ -12,7 +12,7 @@ import { cn } from '@/utils/styles-utils';
 // Import your modal and the store
 import QuestTaskModal, {
   Task,
-} from '@/features/quests/compoents/quest-task-modal';
+} from '@/features/quests/components/quest-task-modal';
 import { useResultStore } from '@/store/useResultsStore';
 import { useRouter } from 'next/navigation';
 

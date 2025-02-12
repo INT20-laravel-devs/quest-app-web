@@ -7,8 +7,8 @@ import { Routes } from '@/constants/routes';
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
 import { Quest } from '@/types/quest';
-import QuestCard from '@/features/quests/compoents/quest-card';
-import QuestFilters from '@/features/quests/compoents/quest-filters';
+import QuestCard from '@/features/quests/components/quest-card';
+import QuestFilters from '@/features/quests/components/quest-filters';
 import { parseAsBoolean, useQueryState } from 'nuqs';
 import { getQuests } from '@/api/quests';
 
@@ -91,11 +91,11 @@ const QuestsPage: FC = () => {
     const data = await getQuests();
     console.log(data);
     setQuests(data);
-  }
+  };
 
-  useEffect(()=> {
-    featchQuests()
-  }, [])
+  useEffect(() => {
+    featchQuests();
+  }, []);
 
   return (
     <section className="max-w-7xl px-4 mx-auto">
