@@ -1,7 +1,13 @@
-import CreateQuestPage from '@/features/quests/create-quest-page';
+import QuestCreatePage from '@/features/quest-create/quest-create-page';
 
-const CreateQuest = () => {
-  return <CreateQuestPage />;
+interface CreateQuestProps {
+  params: {
+    questId: string;
+  };
+}
+
+const CreateQuest = ({ params }: CreateQuestProps) => {
+  return <QuestCreatePage questId={params.questId} />;
 };
 
 export default CreateQuest;

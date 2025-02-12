@@ -1,0 +1,69 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { CreateTaskBody } from '@/types/quests';
+import { PlusCircle } from 'lucide-react';
+import TaskCreatorDialog from '@/features/quest-create/components/task-create-dialog';
+import TaskList from '@/features/quest-create/components/task-list';
+import Header from '@/features/quest-create/components/header';
+import FormStepper from '@/features/quests/components/form-stepper';
+import { getTasks } from '@/api/quests';
+import Link from 'next/link';
+import { Routes } from '@/constants/routes';
+
+export interface RoundCreatePageProps {
+  questId: string;
+}
+
+const RoundCreatePage = ({ questId }: RoundCreatePageProps) => {
+  const [tasks, setTasks] = useState<CreateTaskBody[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleTaskCreated = async () => {
+    await fetchTasks();
+    setIsDialogOpen(false);
+  };
+
+  const fetchTasks = async () => {
+    const res = await getTasks(questId);
+    setTasks(res);
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, [questId]);
+
+  const publishHref = Routes.QUEST_PUBLISH.replace('[id]', questId);
+
+  return (
+    <div className="min-h-screen py-10 px-4 container">
+      <Header />
+      <div className="max-w-xl mx-auto py-2">
+        <FormStepper steps={['General', 'Tasks', 'Results']} currentStep={2} />
+      </div>
+      <div className="max-w-5xl mx-auto space-y-3">
+        <Button onClick={() => setIsDialogOpen(true)}>
+          <PlusCircle className="mr-2 h-4 w-4" /> Create Task
+        </Button>
+        <div className="max-w-5xl mx-auto">
+          <div className="rounded-xl border bg-background/50 backdrop-blur-sm p-6">
+            <TaskList tasks={tasks} setTasks={setTasks} />
+          </div>
+        </div>
+        <Link href={publishHref} className={buttonVariants()}>
+          Next step
+        </Link>
+      </div>
+
+      <TaskCreatorDialog
+        questId={questId}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onTaskCreated={handleTaskCreated}
+      />
+    </div>
+  );
+};
+
+export default RoundCreatePage;

@@ -1,4 +1,5 @@
 import { PropsWithChildren } from 'react';
+import { ChatPopover } from '@/features/chat/components/chat-popover';
 import QuestDashboard from '@/features/quests/compoents/quest-dashboard';
 
 interface QuestLayoutProps extends PropsWithChildren {
@@ -12,6 +13,7 @@ const QuestLayout = ({ children, params }: QuestLayoutProps) => {
     <div className="space-y-6 max-w-7xl mx-auto px-4 py-8">
       <QuestDashboard questId={params.questId} />
       {children}
+      <ChatPopover />
     </div>
   );
 };
