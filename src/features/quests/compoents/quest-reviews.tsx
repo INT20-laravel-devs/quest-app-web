@@ -1,30 +1,41 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { MessageSquare, Star } from 'lucide-react';
-import { useState } from 'react';
+import { MessageSquare, Star, UserRound } from 'lucide-react';
+import QuestReviewsForm from '@/features/quests/compoents/quest-reviews-form';
+import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { getComments } from '@/api/comments';
+import { CommentsResponse } from '@/types/comments';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import useAuthStore from '@/store/use-auth-store';
 
-const QuestReviews = () => {
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
+interface QuestReviewsProps {
+  questId: string;
+}
 
-  const reviews = [
-    {
-      id: 1,
-      author: 'Олександр',
-      rating: 5,
-      comment: 'Дуже цікавий квест! Особливо сподобались загадки.',
-    },
-    {
-      id: 2,
-      author: 'Ірина',
-      rating: 4,
-      comment:
-        'Гарний баланс складності, але деякі завдання потребують уточнення.',
-    },
-  ];
+const QuestReviews = ({ questId }: QuestReviewsProps) => {
+  const user = useAuthStore((state) => state.user);
+  const [reviews, setReviews] = useState<CommentsResponse[]>([]);
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['questReviews', questId],
+    queryFn: () => getComments(questId),
+  });
+
+  useEffect(() => {
+    if (data && reviews.length === 0 && !isLoading) {
+      setReviews(data);
+    }
+  }, [data, reviews.length, isLoading]);
+
+  useEffect(() => {
+    refetch().then();
+  }, [reviews]);
+
+  const isCommentAllowed = !reviews.find(
+    (review) => review.userId === user?.id,
+  );
 
   return (
     <Card>
@@ -35,53 +46,51 @@ const QuestReviews = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-6 p-2 bg-gray-50 rounded-lg">
-          <div className="flex items-center gap-2 mb-4">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Button
-                key={star}
-                variant="ghost"
-                className="p-1 h-auto"
-                onClick={() => setRating(star)}
-              >
-                <Star
-                  className={`w-6 h-6 ${
-                    star <= rating
-                      ? 'text-yellow-500 fill-yellow-500'
-                      : 'text-gray-300'
-                  }`}
-                />
-              </Button>
-            ))}
-          </div>
-          <Textarea
-            placeholder="Leave a comment..."
-            className="mb-3"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+        {isCommentAllowed && (
+          <QuestReviewsForm
+            setReviews={setReviews}
+            questId={questId}
+            reviews={reviews}
           />
-          <Button>Comment</Button>
-        </div>
+        )}
 
         <div className="space-y-4">
           {reviews.map((review) => (
             <div key={review.id} className="p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <div className="font-medium">{review.author}</div>
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${
-                        i < review.rating
-                          ? 'text-yellow-500 fill-yellow-500'
-                          : 'text-gray-300'
-                      }`}
+              <div className="flex gap-3">
+                <Avatar>
+                  <AvatarImage
+                    src={review?.user?.avatarLink as string}
+                    alt={review?.user?.nickname}
+                  />
+                  <AvatarFallback>
+                    <UserRound
+                      size={16}
+                      strokeWidth={2}
+                      className="opacity-60"
+                      aria-hidden="true"
                     />
-                  ))}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="w-full">
+                  <div className="flex w-full items-center justify-between mb-2">
+                    <div className="font-medium">{review?.user?.nickname}</div>
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < review.grade
+                              ? 'text-yellow-500 fill-yellow-500'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-gray-600">{review?.content}</p>
                 </div>
               </div>
-              <p className="text-gray-600">{review.comment}</p>
             </div>
           ))}
         </div>

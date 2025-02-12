@@ -83,6 +83,9 @@ export const publishQuest = async (questId: string) => {
     const response = await fetch(`${API_URL}/quest`, {
       method: 'PATCH',
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         questId,
         isPublished: true,
