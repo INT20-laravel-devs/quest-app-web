@@ -1,5 +1,7 @@
+'use client';
 import { getTasks } from '@/api/quests';
 import QuestTasks from '@/features/quests/components/quest-tasks';
+import { useQuery } from '@tanstack/react-query';
 
 interface QuestGameProps {
   params: {
@@ -7,8 +9,14 @@ interface QuestGameProps {
   };
 }
 
-const QuestGame = async ({ params }: QuestGameProps) => {
-  const data = await getTasks(params.questId);
+const QuestGame = ({ params }: QuestGameProps) => {
+  const { data } = useQuery({
+    queryKey: ['tasks', params.questId],
+    queryFn: () => getTasks(params.questId),
+  });
+
+  if (!data) return null;
+
   return (
     <QuestTasks
       durationMinutes={20}
