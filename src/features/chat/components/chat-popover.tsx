@@ -8,6 +8,8 @@ import {
 } from '@/components/ui/popover';
 import { MessageCircle } from 'lucide-react';
 import { ChatInterface } from './chat-interface';
+import { useEffect } from 'react';
+import { socket } from '@/socket';
 
 export function ChatPopover() {
   return (
